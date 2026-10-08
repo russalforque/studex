@@ -37,36 +37,41 @@ const STAR = 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 9
 
 interface HeroCardProps {
   tone?: HeroTone
-  /** Icon shown as a floating tile on the right. */
+  /** Icon shown as a floating tile in the top-right corner. */
   art?: LucideIcon
   children: ReactNode
+  /** Full-width content under the main block (progress bars, key facts), clear of the art tile. */
+  footer?: ReactNode
   className?: string
   style?: CSSProperties
   /** Use the subject-tinted gradient instead of a pastel (pass `subjectStyle(color)` as `style`). */
   subject?: boolean
+  /** App-tour target name. */
+  'data-tour'?: string
 }
 
 /** Large rounded pastel card that leads a screen, with decorative shapes behind an icon. */
-export function HeroCard({ tone = 'mint', art: Art, children, className, style, subject }: HeroCardProps) {
+export function HeroCard({ tone = 'mint', art: Art, children, footer, className, style, subject, 'data-tour': tour }: HeroCardProps) {
   return (
     <div
+      data-tour={tour}
       style={style}
       className={cn('relative isolate overflow-hidden rounded-[30px] p-5', subject ? 'subject-hero' : HERO[tone], className)}
     >
       {Art && (
-        <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 -z-10 w-[46%]">
-          <span className="absolute -right-12 -bottom-14 size-48 rounded-full bg-white/45 dark:bg-white/5" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+          <span className="absolute -right-14 -bottom-20 size-52 rounded-full bg-white/40 dark:bg-white/4" />
           <span
-            className={cn('absolute top-3 right-4 size-24 opacity-90 dark:opacity-40', BURST[tone])}
+            className={cn('absolute -top-1 right-0 size-24 opacity-90 dark:opacity-35', BURST[tone])}
             style={{ clipPath: STAR }}
           />
-          <span className="animate-float absolute right-5 bottom-5 flex size-[76px] -rotate-6 items-center justify-center rounded-[24px] bg-surface shadow-float">
-            <Art className={cn('size-9', subject ? 'subject-tint bg-transparent!' : ICON_INK[tone])} strokeWidth={1.7} />
+          <span className="animate-float absolute top-5 right-5 flex size-16 -rotate-6 items-center justify-center rounded-[20px] bg-surface shadow-float">
+            <Art className={cn('size-8', subject ? 'subject-tint bg-transparent!' : ICON_INK[tone])} strokeWidth={1.7} />
           </span>
-          <span className="absolute right-[88px] bottom-[70px] size-5 rounded-full bg-surface/80 shadow-card" />
         </div>
       )}
-      <div className={cn('relative', Art && 'pr-[92px]')}>{children}</div>
+      <div className={cn('relative', Art && 'pr-19')}>{children}</div>
+      {footer && <div className="relative mt-4">{footer}</div>}
     </div>
   )
 }
@@ -74,7 +79,7 @@ export function HeroCard({ tone = 'mint', art: Art, children, className, style, 
 /** White pill with a ringed icon, used for the key fact on a hero card. */
 export function HeroPill({ icon: Icon = Check, children }: { icon?: LucideIcon; children: ReactNode }) {
   return (
-    <span className="tabular inline-flex h-10 max-w-full items-center gap-2 rounded-full bg-surface pr-4 pl-1 text-[13px] font-semibold text-ink shadow-card">
+    <span className="tabular inline-flex min-h-10 max-w-full py-1 items-center gap-2 rounded-full bg-surface pr-4 pl-1 text-footnote font-semibold text-ink shadow-card">
       <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-line">
         <Icon className="size-4" strokeWidth={2.2} aria-hidden />
       </span>

@@ -1,0 +1,45 @@
+# Studex website + licensing backend (Cloudflare Workers, D1, R2).
+# No secrets in this file. Secrets: `wrangler secret put NAME` (production) or .dev.vars (local).
+
+name = "studex"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+# These paths are handled by the Worker; everything else is a static file.
+run_worker_first = ["/api/*", "/webhooks/*", "/download/*", "/admin", "/admin/*"]
+html_handling = "none"
+not_found_handling = "404-page"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "studex-licensing"
+# Fill in after `wrangler d1 create studex-licensing`.
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "RELEASES"
+bucket_name = "studex-releases"
+
+[triggers]
+crons = ["17 3 * * *"]
+
+[vars]
+ENVIRONMENT = "production"
+PUBLIC_ORIGIN = "https://studex.example"
+APP_ORIGINS = "https://localhost,capacitor://localhost"
+SUPPORT_EMAIL = "support@studex.example"
+PAYMONGO_LIVEMODE = "false"
+PAYMONGO_METHODS = "qrph,gcash,paymaya,card"
+LICENSE_SIGNING_KID = "k1"
+EMAIL_PROVIDER = "resend"
+EMAIL_FROM = "Studex <license@studex.example>"
+ADMIN_EMAILS = "you@example.com"
+ACCESS_TEAM_DOMAIN = "yourteam.cloudflareaccess.com"
+ACCESS_AUD = ""
+
+[observability]
+enabled = true

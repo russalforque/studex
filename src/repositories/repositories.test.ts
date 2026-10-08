@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import initSqlJs from 'sql.js'
 import { migrate } from '@/db/migrate'
+import { SCHEMA_VERSION } from '@/db/migrations'
 import { SerializedDatabase } from '@/db/SerializedDatabase'
 import { createSqlJsDriver } from '@/db/sqljsDriver'
 import { uuid } from '@/utils/id'
@@ -36,7 +37,7 @@ beforeEach(async () => {
 
 describe('migrations', () => {
   it('are idempotent', async () => {
-    await expect(migrate(repos.db)).resolves.toBe(1)
+    await expect(migrate(repos.db)).resolves.toBe(SCHEMA_VERSION)
     const cats = await repos.expenses.listCategories()
     expect(cats).toHaveLength(10)
   })
@@ -211,10 +212,40 @@ describe('subjects', () => {
       status: 'todo',
     })
     await repos.subjects.addSlots({ subjectId, days: [1, 3], startTime: '09:00', endTime: '10:00', room: null })
-    expect(await repos.subjects.usage(subjectId)).toEqual({ classes: 2, tasks: 1, exams: 0 })
+    expect(await repos.subjects.usage(subjectId)).toEqual({ classes: 2, tasks: 1, exams: 0, grades: 0, attendance: 0, files: 0 })
     await repos.subjects.remove(subjectId)
     const tasks = await repos.tasks.list()
     expect(tasks).toHaveLength(1)
     expect(tasks[0]!.subjectId).toBeNull()
+  })
+})
+
+describe('guide progress', () => {
+  it('records one row per guide and updates it in place', async () => {
+    expect(await repos.guides.list()).toEqual([])
+    await repos.guides.save('tour', 1, 'started', 0)
+    await repos.guides.save('tour', 1, 'skipped', 3)
+    await repos.guides.save('tip.expense', 1, 'seen')
+    const rows = await repos.guides.list()
+    expect(rows.map((r) => [r.id, r.version, r.status, r.step])).toEqual([
+      ['tip.expense', 1, 'seen', 0],
+      ['tour', 1, 'skipped', 3],
+    ])
+  })
+
+  it('resets feature tips without forgetting the tour', async () => {
+    await repos.guides.save('tour', 1, 'completed', 6)
+    await repos.guides.save('tip.expense', 1, 'seen')
+    await repos.guides.save('tip.goal', 1, 'seen')
+    await repos.guides.resetTips()
+    expect((await repos.guides.list()).map((r) => r.id)).toEqual(['tour'])
+  })
+
+  it('stays out of backups and survives a restore', async () => {
+    await repos.guides.save('tour', 1, 'completed', 6)
+    const backup = await repos.backup.exportAll('test')
+    expect(Object.keys(backup.tables)).not.toContain('guide_progress')
+    await repos.backup.restore(backup)
+    expect((await repos.guides.list()).map((r) => r.status)).toEqual(['completed'])
   })
 })

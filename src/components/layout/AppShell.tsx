@@ -12,7 +12,10 @@ export function AppShell() {
 
   return (
     <>
-      <Outlet />
+      {/* On tablets the nav becomes a rail on the left; content moves over to make room. */}
+      <div className="shell rail:pl-(--rail-w)">
+        <Outlet />
+      </div>
       <BottomNav pathname={pathname} />
     </>
   )

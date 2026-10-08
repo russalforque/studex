@@ -5,14 +5,14 @@ import { DayPicker } from '@/components/ui/choice'
 import { ConfirmSheet } from '@/components/ui/ConfirmSheet'
 import { Field, TextInput } from '@/components/ui/fields'
 import { Sheet } from '@/components/ui/Sheet'
-import { overlaps } from '@/domain/schedule'
+import { conflictsFor } from '@/domain/schedule'
 import { DeleteAction, FormError, FormStack, SubjectSelect } from '@/features/shared/formParts'
 import { nextSubjectColor } from '@/features/subjects/colors'
 import { useSlots, useSubjects } from '@/hooks/data'
 import { useAction } from '@/hooks/useAction'
 import { useForm } from '@/hooks/useForm'
 import type { ClassSlotView } from '@/types/models'
-import { WEEKDAYS_SHORT } from '@/utils/dates'
+import { formatDuration, formatTimeRange, WEEKDAYS_SHORT } from '@/utils/dates'
 import { classSlotSchema, validate } from '@/validation/schemas'
 
 const NEW_SUBJECT = '__new__'
@@ -75,13 +75,7 @@ export function ClassSheet({ slot, subjectId, day, onClose }: Props) {
   )
   const remove = useAction(() => repos.subjects.removeSlot((slot?.id ?? "")), ['slots'], { success: 'Class removed' })
 
-  const clashes = allSlots.filter(
-    (s) =>
-      s.id !== slot?.id &&
-      v.startTime &&
-      v.endTime &&
-      v.days.some((d) => overlaps(s, { dayOfWeek: d, startTime: v.startTime, endTime: v.endTime })),
-  )
+  const clashes = conflictsFor({ id: slot?.id, days: v.days, startTime: v.startTime, endTime: v.endTime }, allSlots)
 
   const onSubmit = async () => {
     const subjectName = creatingSubject ? v.newSubjectName.trim() : null
@@ -109,7 +103,7 @@ export function ClassSheet({ slot, subjectId, day, onClose }: Props) {
         headerAction={slot && <DeleteAction label="Remove class time" onClick={() => setConfirming(true)} />}
         footer={
           <Button size="lg" block loading={save.pending} onClick={onSubmit}>
-            {slot ? 'Save' : 'Add to schedule'}
+            {clashes.length > 0 ? 'Save anyway' : slot ? 'Save' : 'Add to schedule'}
           </Button>
         }
       >
@@ -169,9 +163,18 @@ export function ClassSheet({ slot, subjectId, day, onClose }: Props) {
             </div>
 
             {clashes.length > 0 && (
-              <p className="rounded-2xl bg-warn-soft px-4 py-3 text-[14px] text-warn">
-                Overlaps with {clashes[0]!.subjectName} on {WEEKDAYS_SHORT[clashes[0]!.dayOfWeek]}. You can still save it.
-              </p>
+              <div role="alert" className="rounded-2xl bg-warn-soft px-4 py-3 text-subhead text-warn">
+                <p className="font-semibold">Schedule conflict</p>
+                <ul className="mt-1.5 flex flex-col gap-1">
+                  {clashes.map((c) => (
+                    <li key={`${c.slot.id}-${c.day}`}>
+                      {WEEKDAYS_SHORT[c.day]}: {c.slot.subjectName}, {formatTimeRange(c.slot.startTime, c.slot.endTime)}, overlaps by{' '}
+                      {formatDuration(c.minutes)}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-1.5">Check the times. If it's right (say, alternating weeks), you can still save it.</p>
+              </div>
             )}
 
             <Field label="Room" optional hint={chosenSubject?.room ? `Leave empty to use ${chosenSubject.room}` : undefined}>

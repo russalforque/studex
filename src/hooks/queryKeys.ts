@@ -15,6 +15,18 @@ export type QueryArea =
   | 'income'
   | 'plan'
   | 'savings'
+  | 'notes'
+  | 'attendance'
+  | 'grades'
+  | 'topics'
+  | 'files'
+  | 'guides'
+  | 'focus'
+  | 'recurring'
+  | 'planned'
+  | 'presets'
+  /** Cross-area reads (search, weekly summary). Every write refreshes them. */
+  | 'insights'
 
 /** Anything that changes money touches all of these. */
-export const MONEY: QueryArea[] = ['expenses', 'budget', 'income', 'plan', 'savings']
+export const MONEY: QueryArea[] = ['expenses', 'budget', 'income', 'plan', 'savings', 'recurring', 'planned']

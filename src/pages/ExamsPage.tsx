@@ -1,14 +1,15 @@
 import { useState } from 'react'
-import { BookOpen, CalendarDays, Clock, Plus } from 'lucide-react'
+import { BookOpen, CalendarDays, Clock, ListChecks, Plus } from 'lucide-react'
 import { useClock, useRepos } from '@/app/contexts'
 import { Page } from '@/components/layout/Page'
 import { IconButton } from '@/components/ui/Button'
 import { HeroCard, HeroPill } from '@/components/ui/HeroCard'
 import { Segmented } from '@/components/ui/choice'
-import { EmptyState, ErrorNotice, List, Loading, MetaChip, Pill, Section, SubjectBadge } from '@/components/ui/display'
+import { EmptyState, ErrorNotice, List, Loading, MetaChip, Pill, ProgressBar, Section, SubjectBadge } from '@/components/ui/display'
 import { EXAM_KIND_LABEL, STUDY_LABEL, STUDY_TONE } from '@/features/exams/labels'
 import { useSheets } from '@/features/sheets/SheetsContext'
 import { useExams } from '@/hooks/data'
+import { useMediaQuery, WIDE } from '@/hooks/useMediaQuery'
 import { useAction } from '@/hooks/useAction'
 import { STUDY_STATUSES, type Exam, type StudyStatus } from '@/types/models'
 import { daysBetween, formatShortDate, formatTime, relativeDay } from '@/utils/dates'
@@ -18,69 +19,95 @@ export function ExamsPage() {
   const open = useSheets()
   const { data: exams, isPending, error, refetch } = useExams()
   const [view, setView] = useState<'upcoming' | 'past'>('upcoming')
+  // Tablet landscape lists upcoming and past side by side instead of behind a toggle.
+  const wide = useMediaQuery(WIDE)
 
   const isPast = (e: Exam) => e.date < today || e.studyStatus === 'completed'
-  const list = (exams ?? []).filter((e) => (view === 'past' ? isPast(e) : !isPast(e)))
-  if (view === 'past') list.reverse()
-  const [first, ...rest] = list
+  const upcoming = (exams ?? []).filter((e) => !isPast(e))
+  const past = (exams ?? []).filter(isPast).reverse()
 
   return (
     <Page
       title="Exams & quizzes"
       back="/more"
+      wide={wide}
       actions={
         <IconButton label="Add exam" tone="accent" onClick={() => open({ type: 'exam' })}>
           <Plus className="size-5" />
         </IconButton>
       }
     >
-      <Segmented
-        label="Show"
-        className="mb-6"
-        value={view}
-        onChange={setView}
-        options={[
-          { value: 'upcoming', label: 'Upcoming' },
-          { value: 'past', label: 'Past' },
-        ]}
-      />
+      {!wide && (
+        <Segmented
+          label="Show"
+          className="mb-6"
+          value={view}
+          onChange={setView}
+          options={[
+            { value: 'upcoming', label: 'Upcoming' },
+            { value: 'past', label: 'Past' },
+          ]}
+        />
+      )}
       {isPending ? (
         <Loading />
       ) : error ? (
         <ErrorNotice message="Exams couldn't be loaded." onRetry={() => void refetch()} />
-      ) : !first ? (
-        view === 'upcoming' ? (
-          <EmptyState
-            icon={BookOpen}
-            tone="pink"
-            title="No upcoming exams"
-            message="Add exams, quizzes and presentations to see them on Home as they get close."
-            action={{ label: 'Add exam', onClick: () => open({ type: 'exam' }) }}
-          />
-        ) : (
-          <EmptyState icon={BookOpen} tone="pink" title="No past exams" />
-        )
+      ) : wide ? (
+        <div className="grid grid-cols-[minmax(0,3fr)_minmax(0,2fr)] items-start gap-8">
+          <Section title="Upcoming" className="min-w-0">
+            <UpcomingExams exams={upcoming} today={today} onAdd={() => open({ type: 'exam' })} />
+          </Section>
+          <Section title="Past" className="min-w-0">
+            <PastExams exams={past} today={today} />
+          </Section>
+        </div>
       ) : view === 'upcoming' ? (
-        <>
-          <NextExam exam={first} today={today} />
-          {rest.length > 0 && (
-            <Section title="Later">
-              <List>
-                {rest.map((e) => (
-                  <ExamRow key={e.id} exam={e} today={today} />
-                ))}
-              </List>
-            </Section>
-          )}
-        </>
+        <UpcomingExams exams={upcoming} today={today} onAdd={() => open({ type: 'exam' })} />
       ) : (
-        <List>
-          {list.map((e) => (
-            <ExamRow key={e.id} exam={e} today={today} />
-          ))}
-        </List>
+        <PastExams exams={past} today={today} />
       )}
     </Page>
+  )
+}
+
+function UpcomingExams({ exams, today, onAdd }: { exams: Exam[]; today: string; onAdd: () => void }) {
+  const [first, ...rest] = exams
+  if (!first) {
+    return (
+      <EmptyState
+        icon={BookOpen}
+        tone="pink"
+        title="No upcoming exams"
+        message="Add exams, quizzes and presentations to see them on Home as they get close."
+        action={{ label: 'Add exam', onClick: onAdd }}
+      />
+    )
+  }
+  return (
+    <>
+      <NextExam exam={first} today={today} />
+      {rest.length > 0 && (
+        <Section title="Later">
+          <List>
+            {rest.map((e) => (
+              <ExamRow key={e.id} exam={e} today={today} />
+            ))}
+          </List>
+        </Section>
+      )}
+    </>
+  )
+}
+
+function PastExams({ exams, today }: { exams: Exam[]; today: string }) {
+  if (exams.length === 0) return <EmptyState icon={BookOpen} tone="pink" title="No past exams" />
+  return (
+    <List>
+      {exams.map((e) => (
+        <ExamRow key={e.id} exam={e} today={today} />
+      ))}
+    </List>
   )
 }
 
@@ -101,7 +128,7 @@ function NextExam({ exam: e, today }: { exam: Exam; today: string }) {
           {countdown(days)}
           {e.time && ` · ${formatTime(e.time)}`}
         </HeroPill>
-        <p className="mt-4 line-clamp-2 text-[22px] leading-tight font-bold tracking-tight">{e.title}</p>
+        <p className="mt-4 line-clamp-2 text-title-2 leading-tight font-bold">{e.title}</p>
         <div className="mt-2.5 flex flex-wrap gap-1.5">
           <MetaChip icon={CalendarDays} tone="onColor">
             {formatShortDate(e.date, today)}
@@ -111,10 +138,23 @@ function NextExam({ exam: e, today }: { exam: Exam; today: string }) {
         <div className="mt-4 flex items-center gap-2.5">
           <SubjectBadge color={e.subjectColor} name={e.subjectName ?? e.title} />
           <div className="min-w-0">
-            <p className="truncate text-[14px] font-semibold">{e.subjectName ?? 'No subject'}</p>
-            <p className="text-[12px] text-ink-2">{STUDY_LABEL[e.studyStatus]}</p>
+            <p className="truncate text-subhead font-semibold">{e.subjectName ?? 'No subject'}</p>
+            <p className="text-caption text-ink-2">{STUDY_LABEL[e.studyStatus]}</p>
           </div>
         </div>
+        {e.topicsTotal > 0 && (
+          <div className="mt-4">
+            <p className="tabular mb-1.5 text-footnote font-medium text-ink-2">
+              Study progress · {e.topicsDone} / {e.topicsTotal} topics
+            </p>
+            <ProgressBar
+              value={(e.topicsDone / e.topicsTotal) * 100}
+              tone={e.topicsDone === e.topicsTotal ? 'ok' : 'accent'}
+              onColor
+              label={`${e.topicsDone} of ${e.topicsTotal} topics reviewed`}
+            />
+          </div>
+        )}
       </HeroCard>
     </button>
   )
@@ -133,13 +173,18 @@ function ExamRow({ exam: e, today }: { exam: Exam; today: string }) {
       <button type="button" onClick={() => open({ type: 'exam', exam: e })} className="press flex min-w-0 flex-1 items-center gap-3 text-left">
         <SubjectBadge color={e.subjectColor} name={e.subjectName ?? e.title} />
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-[15px] leading-snug font-semibold">{e.title}</span>
+          <span className="block truncate text-body leading-snug font-semibold">{e.title}</span>
           <span className="mt-1 flex flex-wrap gap-1.5">
             <MetaChip icon={CalendarDays} tone={soon ? 'warn' : 'neutral'}>
               {relativeDay(e.date, today)}
             </MetaChip>
             {e.time && <MetaChip icon={Clock}>{formatTime(e.time)}</MetaChip>}
             <MetaChip>{EXAM_KIND_LABEL[e.kind]}</MetaChip>
+            {e.topicsTotal > 0 && (
+              <MetaChip icon={ListChecks}>
+                {e.topicsDone}/{e.topicsTotal}
+              </MetaChip>
+            )}
           </span>
         </span>
       </button>

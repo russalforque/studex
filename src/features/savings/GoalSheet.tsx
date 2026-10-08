@@ -12,6 +12,7 @@ import { useForm } from '@/hooks/useForm'
 import type { SavingsGoal } from '@/types/models'
 import { formatMoney, minorToInput, parseMoney } from '@/utils/money'
 import { savingsGoalSchema, validate, type SavingsGoalInput } from '@/validation/schemas'
+import { GuideTip } from '@/features/guide/GuideTip'
 
 export function GoalSheet({ goal, onClose }: { goal?: SavingsGoal | undefined; onClose: () => void }) {
   const repos = useRepos()
@@ -63,6 +64,11 @@ export function GoalSheet({ goal, onClose }: { goal?: SavingsGoal | undefined; o
           </Button>
         }
       >
+        {!goal && (
+          <GuideTip id="tip.goal">
+            Set a target, and a date if you have one. Studex works out how much to put aside each month.
+          </GuideTip>
+        )}
         <FormError message={form.formError} />
         <FormStack>
           <Field label="Saving for" error={errors.name}>

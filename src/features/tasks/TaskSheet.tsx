@@ -5,6 +5,7 @@ import { Chips, Segmented } from '@/components/ui/choice'
 import { ConfirmSheet } from '@/components/ui/ConfirmSheet'
 import { Field, TextArea, TextInput } from '@/components/ui/fields'
 import { Sheet } from '@/components/ui/Sheet'
+import { AttachmentsField } from '@/features/files/AttachmentsField'
 import { DateChooser, DeleteAction, FormError, FormStack, MoreDetails, SubjectSelect } from '@/features/shared/formParts'
 import { useAction } from '@/hooks/useAction'
 import { useForm } from '@/hooks/useForm'
@@ -25,6 +26,8 @@ export function TaskSheet({ task, subjectId, dueDate, onClose }: Props) {
   const { today } = useClock()
   const [newId] = useState(uuid)
   const [confirming, setConfirming] = useState(false)
+  // Files chosen before the task exists; linked right after it's created.
+  const [pendingFiles, setPendingFiles] = useState<string[]>([])
   const form = useForm({
     title: task?.title ?? '',
     subjectId: task?.subjectId ?? subjectId ?? null,
@@ -38,9 +41,12 @@ export function TaskSheet({ task, subjectId, dueDate, onClose }: Props) {
   const { values: v, set, errors } = form
 
   const save = useAction(
-    (input: Parameters<typeof repos.tasks.create>[1]) =>
-      task ? repos.tasks.update(task.id, input) : repos.tasks.create(newId, input),
-    ['tasks'],
+    async (input: Parameters<typeof repos.tasks.create>[1]) => {
+      if (task) return repos.tasks.update(task.id, input)
+      await repos.tasks.create(newId, input)
+      if (pendingFiles.length) await repos.files.link(pendingFiles, 'task', newId)
+    },
+    ['tasks', 'files'],
     { success: task ? 'Task updated' : 'Task added' },
   )
   const remove = useAction(() => repos.tasks.remove((task?.id ?? "")), ['tasks'], { success: 'Task deleted' })
@@ -159,6 +165,19 @@ export function TaskSheet({ task, subjectId, dueDate, onClose }: Props) {
                 )}
               </Field>
             </MoreDetails>
+            <Field label="Attachments" optional>
+              {() => (
+                <AttachmentsField
+                  type="task"
+                  targetId={task?.id ?? newId}
+                  title={v.title || 'this task'}
+                  saved={!!task}
+                  subjectId={v.subjectId}
+                  pending={pendingFiles}
+                  onPendingChange={setPendingFiles}
+                />
+              )}
+            </Field>
           </FormStack>
         </form>
       </Sheet>

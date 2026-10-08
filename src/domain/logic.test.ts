@@ -133,3 +133,16 @@ describe('savings', () => {
     expect(monthlyNeeded(0, 1200_00, null, '2026-10-06')).toBeNull()
   })
 })
+
+describe('dueLabel', () => {
+  it('reads like a person would say it', async () => {
+    const { dueLabel } = await import('@/utils/dates')
+    const today = '2026-10-08' // Thursday
+    expect(dueLabel('2026-10-08', null, today)).toBe('Today')
+    expect(dueLabel('2026-10-09', null, today)).toBe('Tomorrow')
+    expect(dueLabel('2026-10-09', '17:00', today)).toMatch(/^Tomorrow · 5:00/)
+    expect(dueLabel('2026-10-10', null, today)).toBe('Saturday')
+    expect(dueLabel('2026-10-10', null, today, true)).toBe('Saturday · in 2 days')
+    expect(dueLabel('2026-10-17', null, today)).toBe('In 9 days')
+  })
+})

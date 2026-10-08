@@ -4,7 +4,7 @@ import { cn } from '@/utils/cn'
 import { currencySymbol } from '@/utils/money'
 
 const CONTROL =
-  'w-full min-h-13 rounded-2xl bg-surface px-4 text-[16px] text-ink placeholder:text-ink-3 outline-none ' +
+  'w-full min-h-13 rounded-2xl bg-surface px-4 text-callout text-ink placeholder:text-ink-3 outline-none ' +
   'border border-line focus:border-ink transition-colors'
 
 interface FieldProps {
@@ -22,17 +22,17 @@ export function Field({ label, error, hint, optional, children, className }: Fie
   const msgId = `${id}-msg`
   return (
     <div className={cn('flex flex-col gap-1.5', className)}>
-      <label htmlFor={id} className="pl-1 text-[14px] font-semibold text-ink">
+      <label htmlFor={id} className="pl-1 text-subhead font-medium text-ink">
         {label}
         {optional && <span className="font-normal text-ink-3"> · optional</span>}
       </label>
       {children(id, error || hint ? msgId : undefined)}
       {error ? (
-        <p id={msgId} role="alert" className="pl-1 text-[13px] text-danger">
+        <p id={msgId} role="alert" className="pl-1 text-footnote text-danger">
           {error}
         </p>
       ) : hint ? (
-        <p id={msgId} className="pl-1 text-[13px] text-ink-3">
+        <p id={msgId} className="pl-1 text-footnote text-ink-3">
           {hint}
         </p>
       ) : null}
@@ -76,7 +76,7 @@ export function MoneyInput({
         large ? 'min-h-18' : 'min-h-13',
       )}
     >
-      <span className={cn('mr-1 text-ink-3', large ? 'text-[28px] font-semibold' : 'text-[16px]')}>
+      <span className={cn('mr-1 text-ink-3', large ? 'text-large-title font-semibold' : 'text-callout')}>
         {currencySymbol(currency)}
       </span>
       <input
@@ -86,7 +86,7 @@ export function MoneyInput({
         aria-invalid={invalid || undefined}
         className={cn(
           'tabular w-full min-w-0 bg-transparent text-ink outline-none placeholder:text-ink-3',
-          large ? 'text-[32px] font-semibold tracking-tight' : 'text-[16px]',
+          large ? 'text-display-sm font-semibold' : 'text-callout',
           className,
         )}
         {...rest}
@@ -95,12 +95,26 @@ export function MoneyInput({
   )
 }
 
-export function Select({ className, children, invalid, ...rest }: SelectHTMLAttributes<HTMLSelectElement> & { invalid?: boolean }) {
+/** Native select. `compact` is a pill sized to its content, for filters rather than forms. */
+export function Select({
+  className,
+  children,
+  invalid,
+  compact,
+  ...rest
+}: SelectHTMLAttributes<HTMLSelectElement> & { invalid?: boolean; compact?: boolean }) {
   return (
-    <div className="relative">
+    <div className={cn('relative', compact && 'w-fit max-w-full')}>
       <select
         aria-invalid={invalid || undefined}
-        className={cn(CONTROL, 'appearance-none pr-10', invalid && 'border-danger', className)}
+        className={cn(
+          compact
+            ? 'press min-h-10 w-full truncate rounded-full border border-line bg-surface pl-4 text-subhead font-semibold text-ink outline-none focus:border-ink'
+            : CONTROL,
+          'appearance-none pr-10',
+          invalid && 'border-danger',
+          className,
+        )}
         {...rest}
       >
         {children}

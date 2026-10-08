@@ -155,3 +155,14 @@ export function greeting(now: Date = new Date()): string {
   if (h < 18) return 'Good afternoon'
   return 'Good evening'
 }
+
+/**
+ * Human-readable deadline: "Today · 5:00 PM", "Tomorrow", "Friday", "In 9 days", then a date.
+ * With `countdown`, near dates also say how far away they are ("Friday · in 3 days").
+ */
+export function dueLabel(iso: ISODate, time: TimeHM | null, today: ISODate = todayISO(), countdown = false): string {
+  const diff = daysBetween(today, iso)
+  let label = diff >= 7 && diff <= 30 ? `In ${diff} days` : relativeDay(iso, today)
+  if (countdown && diff >= 2 && diff < 7) label += ` · in ${diff} days`
+  return time ? `${label} · ${formatTime(time)}` : label
+}

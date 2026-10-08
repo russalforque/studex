@@ -1,4 +1,19 @@
+import groovy.json.JsonSlurper
+
 apply plugin: 'com.android.application'
+
+// Version comes from package.json so the APK, the website and the app's About screen agree.
+// 1.4.2 → versionName "1.4.2", versionCode 10402. versionCode must only ever go up.
+def appVersion = new JsonSlurper().parse(rootProject.file('../package.json')).version
+def (vMajor, vMinor, vPatch) = appVersion.tokenize('.-')[0..2].collect { it as int }
+
+// Release signing. Credentials are never committed: they come from android/keystore.properties
+// (git-ignored; see docs/RELEASE.md) or STUDEX_* environment variables in CI.
+def keystoreProps = new Properties()
+def keystoreFile = rootProject.file('keystore.properties')
+if (keystoreFile.exists()) keystoreFile.withInputStream { keystoreProps.load(it) }
+def signingValue = { String key, String env -> keystoreProps.getProperty(key) ?: System.getenv(env) }
+def releaseStore = signingValue('storeFile', 'STUDEX_KEYSTORE')
 
 android {
     namespace = "com.studex.app"
@@ -7,8 +22,8 @@ android {
         applicationId "com.studex.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode vMajor * 10000 + vMinor * 100 + vPatch
+        versionName appVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,8 +31,23 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (releaseStore) {
+                storeFile file(releaseStore)
+                storePassword signingValue('storePassword', 'STUDEX_KEYSTORE_PASSWORD')
+                keyAlias signingValue('keyAlias', 'STUDEX_KEY_ALIAS')
+                keyPassword signingValue('keyPassword', 'STUDEX_KEY_PASSWORD')
+                enableV1Signing true
+                enableV2Signing true
+                enableV3Signing true
+            }
+        }
+    }
     buildTypes {
         release {
+            signingConfig releaseStore ? signingConfigs.release : null
+            debuggable false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -43,6 +73,13 @@ dependencies {
 }
 
 apply from: 'capacitor.build.gradle'
+
+// Never produce an unsigned or debug-signed release by accident.
+gradle.taskGraph.whenReady { graph ->
+    if (!releaseStore && graph.allTasks.any { it.name ==~ /(assemble|bundle|package)Release/ }) {
+        throw new GradleException('Release signing is not configured. Create android/keystore.properties (see docs/RELEASE.md).')
+    }
+}
 
 try {
     def servicesJSON = file('google-services.json')

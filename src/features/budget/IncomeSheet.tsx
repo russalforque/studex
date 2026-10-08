@@ -56,7 +56,7 @@ export function IncomeSheet({ income, onClose }: { income?: Income | undefined; 
         <FormError message={form.formError} />
         <FormStack>
           {scheduled && income.periodStart && income.periodEnd && (
-            <p className="text-[14px] text-ink-2">
+            <p className="text-subhead text-ink-2">
               For {formatShortDate(income.periodStart, today)} – {formatShortDate(income.periodEnd, today)}. Change the
               amount if you received a different amount this time.
             </p>

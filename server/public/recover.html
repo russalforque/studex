@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Restore your purchase · Studex</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="stylesheet" href="/assets/site.css" />
+    <script src="/assets/site.js" defer></script>
+  </head>
+  <body>
+    <header class="top"><div class="wrap"><a class="brand" href="/"><img src="/favicon.png" alt="" />STUDEX</a></div></header>
+    <main class="page">
+      <div class="wrap narrow">
+        <div id="resend-section">
+          <h1>Restore your purchase</h1>
+          <p class="muted">Already bought Studex? You never need to pay again.</p>
+
+          <div class="card">
+            <h3>Reinstalled Studex, or got a new phone?</h3>
+            <p class="muted flush">
+              Open Studex, tap <b>Restore purchase</b> and enter your purchase email. We send a 6-digit code to confirm it's you. You don't need your
+              license code or your old phone.
+            </p>
+          </div>
+
+          <div class="card gap-top">
+            <h3>Lost your license code?</h3>
+            <p class="muted">Enter your purchase email. We'll send a one-time link that gives you a new code. The old code stops working; phones already using Studex keep working.</p>
+            <form id="resend-form" class="form-row" novalidate>
+              <div>
+                <label for="resend-email">Purchase email</label>
+                <input id="resend-email" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required />
+              </div>
+              <p id="resend-error" class="alert alert-error" role="alert" hidden></p>
+              <button class="btn btn-primary" type="submit">Email me a link</button>
+            </form>
+            <p id="resend-done" class="alert alert-ok" role="status" hidden></p>
+          </div>
+
+          <div class="card gap-top">
+            <h3>Your data is separate from your license</h3>
+            <p class="muted flush">
+              Restoring your purchase unlocks Studex. Your classes, notes and money records live on your phone, not with us. To move them, make a
+              backup in Settings → Data on the old phone and restore it on the new one. If a phone is lost without a backup, its data can't be
+              recovered.
+            </p>
+          </div>
+        </div>
+
+        <div id="reissue" hidden>
+          <h1>Your new license code</h1>
+          <div id="reissue-start" class="card">
+            <p class="muted">This makes a new code for your purchase and turns the old one off. Phones already using Studex keep working.</p>
+            <p id="reissue-error" class="alert alert-error" role="alert" hidden></p>
+            <button id="reissue-button" class="btn btn-primary" type="button">Show my new code</button>
+          </div>
+          <div id="reissue-done" class="card" hidden>
+            <p id="new-code" class="code"></p>
+            <p class="muted">Write it down or keep it in a password manager. Open Studex, tap <b>Activate Studex</b> and enter it.</p>
+            <a id="reissue-download" class="btn btn-secondary" href="#">Download for Android</a>
+          </div>
+        </div>
+
+        <p class="muted small gap-top">Still stuck? Email <a href="mailto:support@studex.example">support@studex.example</a> from your purchase email.</p>
+      </div>
+    </main>
+  </body>
+</html>

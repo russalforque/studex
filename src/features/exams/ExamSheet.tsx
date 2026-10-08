@@ -12,12 +12,16 @@ import { EXAM_KINDS, STUDY_STATUSES, type Exam, type ExamKind, type StudyStatus 
 import { uuid } from '@/utils/id'
 import { examSchema, validate } from '@/validation/schemas'
 import { EXAM_KIND_LABEL, STUDY_LABEL } from './labels'
+import { StudyTopics } from './StudyTopics'
+import { AttachmentsField } from '@/features/files/AttachmentsField'
 
 export function ExamSheet({ exam, subjectId, onClose }: { exam?: Exam | undefined; subjectId?: string | undefined; onClose: () => void }) {
   const repos = useRepos()
   const { today } = useClock()
   const [newId] = useState(uuid)
   const [confirming, setConfirming] = useState(false)
+  const [pendingTopics, setPendingTopics] = useState<string[]>([])
+  const [pendingFiles, setPendingFiles] = useState<string[]>([])
   const form = useForm({
     title: exam?.title ?? '',
     kind: (exam?.kind ?? 'exam') as ExamKind,
@@ -31,9 +35,12 @@ export function ExamSheet({ exam, subjectId, onClose }: { exam?: Exam | undefine
   const { values: v, set, errors } = form
 
   const save = useAction(
-    (input: Parameters<typeof repos.exams.create>[1]) =>
-      exam ? repos.exams.update(exam.id, input) : repos.exams.create(newId, input),
-    ['exams'],
+    async (input: Parameters<typeof repos.exams.create>[1]) => {
+      if (exam) return repos.exams.update(exam.id, input)
+      await repos.exams.create(newId, input, pendingTopics)
+      if (pendingFiles.length) await repos.files.link(pendingFiles, 'exam', newId)
+    },
+    ['exams', 'topics', 'files'],
     { success: exam ? 'Saved' : `${EXAM_KIND_LABEL[v.kind]} added` },
   )
   const remove = useAction(() => repos.exams.remove((exam?.id ?? "")), ['exams'], { success: 'Deleted' })
@@ -102,6 +109,11 @@ export function ExamSheet({ exam, subjectId, onClose }: { exam?: Exam | undefine
                 <TextArea id={id} className="min-h-20" placeholder="Chapters 4–6, subnetting" value={v.coverage} onChange={(e) => set('coverage', e.target.value)} />
               )}
             </Field>
+            <Field label="Study topics" optional hint={exam ? undefined : 'Tick them off as you review.'}>
+              {() =>
+                exam ? <StudyTopics examId={exam.id} /> : <StudyTopics pending={pendingTopics} onPendingChange={setPendingTopics} />
+              }
+            </Field>
             <Field label="Study status">
               {() => (
                 <Segmented
@@ -112,13 +124,26 @@ export function ExamSheet({ exam, subjectId, onClose }: { exam?: Exam | undefine
                 />
               )}
             </Field>
+            <Field label="Study materials" optional>
+              {() => (
+                <AttachmentsField
+                  type="exam"
+                  targetId={exam?.id ?? newId}
+                  title={v.title || 'this exam'}
+                  saved={!!exam}
+                  subjectId={v.subjectId}
+                  pending={pendingFiles}
+                  onPendingChange={setPendingFiles}
+                />
+              )}
+            </Field>
             <MoreDetails defaultOpen={!!exam?.notes} label="Notes">
               <Field label="Notes" optional error={errors.notes}>
                 {(id) => <TextArea id={id} value={v.notes} onChange={(e) => set('notes', e.target.value)} />}
               </Field>
             </MoreDetails>
             {exam && v.date && v.date < today && v.studyStatus !== 'completed' && (
-              <p className="text-[13px] text-ink-3">This date has passed. Mark it Done to move it to past exams.</p>
+              <p className="text-footnote text-ink-3">This date has passed. Mark it Done to move it to past exams.</p>
             )}
           </FormStack>
         </form>

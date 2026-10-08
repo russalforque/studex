@@ -17,14 +17,18 @@ const TONE_CIRCLE: Record<Tone, string> = {
   sun: 'bg-sun text-sun-ink',
 }
 
-/** A titled block of content. */
+/** A titled block of content. `count` sits beside the title so it reads as part of the heading. */
 export function Section({
   title,
+  count,
+  countTone = 'neutral',
   action,
   children,
   className,
 }: {
   title?: string
+  count?: number
+  countTone?: 'neutral' | 'danger'
   action?: ReactNode
   children: ReactNode
   className?: string
@@ -33,7 +37,21 @@ export function Section({
     <section className={cn('mt-7 first:mt-0', className)}>
       {(title || action) && (
         <div className="mb-3 flex min-h-9 items-center justify-between gap-3">
-          {title && <h2 className="truncate text-[17px] font-semibold tracking-tight">{title}</h2>}
+          {title && (
+            <h2 className="flex min-w-0 items-center gap-2 text-headline font-semibold">
+              <span className="truncate">{title}</span>
+              {count != null && (
+                <span
+                  className={cn(
+                    'tabular inline-flex min-h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-1.5 text-caption font-semibold',
+                    countTone === 'danger' ? 'bg-danger-soft text-danger' : 'bg-surface-3 text-ink-2',
+                  )}
+                >
+                  {count}
+                </span>
+              )}
+            </h2>
+          )}
           {action}
         </div>
       )}
@@ -43,7 +61,7 @@ export function Section({
 }
 
 const SECTION_PILL =
-  'press inline-flex min-h-9 shrink-0 items-center gap-1 rounded-full bg-surface px-3.5 text-[13px] font-semibold text-ink border border-line active:bg-surface-2'
+  'press inline-flex min-h-9 shrink-0 items-center gap-1 rounded-full bg-surface px-3.5 text-footnote font-semibold text-ink border border-line active:bg-surface-2'
 
 export function SectionLink({ to, children }: { to: string; children: ReactNode }) {
   return (
@@ -81,8 +99,8 @@ export function Row({ leading, title, subtitle, trailing, onClick, to, chevron, 
     <>
       {leading && <div className="flex shrink-0 items-center">{leading}</div>}
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[15px] leading-snug font-semibold">{title}</div>
-        {subtitle && <div className="mt-0.5 truncate text-[13px] text-ink-2">{subtitle}</div>}
+        <div className="truncate text-body leading-snug font-semibold">{title}</div>
+        {subtitle && <div className="mt-0.5 truncate text-footnote text-ink-2">{subtitle}</div>}
       </div>
       {trailing && <div className="shrink-0 text-right">{trailing}</div>}
       {chevron && (
@@ -140,7 +158,7 @@ export function SubjectBadge({ color, name, className }: { color: string | null 
     <span
       aria-hidden
       style={subjectStyle(color)}
-      className={cn('subject-tint flex size-11 shrink-0 items-center justify-center rounded-full text-[13px] font-bold tracking-tight', className)}
+      className={cn('subject-tint flex size-11 shrink-0 items-center justify-center rounded-full text-footnote font-bold', className)}
     >
       {initials(name ?? '')}
     </span>
@@ -166,7 +184,7 @@ export function MetaChip({
   tone?: keyof typeof CHIP_TONES
 }) {
   return (
-    <span className={cn('inline-flex min-h-6 items-center gap-1 rounded-full px-2 text-[11.5px] font-medium whitespace-nowrap', CHIP_TONES[tone])}>
+    <span className={cn('inline-flex min-h-6 items-center gap-1 rounded-full px-2 text-caption font-medium whitespace-nowrap', CHIP_TONES[tone])}>
       {Icon && <Icon className="size-3" strokeWidth={2.2} aria-hidden />}
       {children}
     </span>
@@ -189,12 +207,13 @@ export function EmptyState({
   tone?: Tone
 }) {
   return (
-    <div className={cn('card flex flex-col items-center rounded-[28px] px-6 text-center', compact ? 'py-6' : 'py-10')}>
+    // Capped so an empty screen on a landscape tablet doesn't become one very wide card.
+    <div className={cn('card mx-auto flex w-full max-w-2xl flex-col items-center rounded-[28px] px-6 text-center', compact ? 'py-6' : 'py-10')}>
       <div className={compact ? 'mb-3' : 'mb-4'}>
         <IconCircle icon={icon} tone={tone} large={!compact} />
       </div>
-      <p className="text-[16px] font-semibold">{title}</p>
-      {message && <p className="mt-1 max-w-72 text-[14px] text-ink-2">{message}</p>}
+      <p className="text-callout font-semibold">{title}</p>
+      {message && <p className="mt-1 max-w-72 text-subhead text-ink-2">{message}</p>}
       {action && (
         <Button className="mt-4" onClick={action.onClick}>
           {action.label}
@@ -256,7 +275,7 @@ export function ErrorNotice({ message, onRetry }: { message: string; onRetry?: (
       <span className="flex size-12 items-center justify-center rounded-full bg-danger-soft">
         <CircleAlert className="size-6 text-danger" aria-hidden />
       </span>
-      <p className="max-w-72 text-[14px] text-ink-2">{message}</p>
+      <p className="max-w-72 text-subhead text-ink-2">{message}</p>
       {onRetry && (
         <Button variant="secondary" onClick={onRetry}>
           Try again
@@ -276,7 +295,7 @@ export function Pill({ children, tone = 'neutral' }: { children: ReactNode; tone
     danger: 'bg-danger-soft text-danger',
   }
   return (
-    <span className={cn('inline-flex min-h-7 items-center rounded-full px-3 text-[12px] font-semibold whitespace-nowrap', tones[tone])}>
+    <span className={cn('inline-flex min-h-7 items-center rounded-full px-3 text-caption font-semibold whitespace-nowrap', tones[tone])}>
       {children}
     </span>
   )

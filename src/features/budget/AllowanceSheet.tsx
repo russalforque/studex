@@ -13,6 +13,7 @@ import type { AllowancePlan } from '@/types/models'
 import type { AllowancePlanInput } from '@/validation/schemas'
 import { AllowanceFields } from './AllowanceFields'
 import { initialAllowanceValues, toPlanInput } from './allowanceForm'
+import { GuideTip } from '@/features/guide/GuideTip'
 
 export function AllowanceSheet({ onClose }: { onClose: () => void }) {
   const { data: plan, isPending } = useAllowancePlan()
@@ -63,10 +64,15 @@ function AllowanceForm({ plan, onClose }: { plan: AllowancePlan | null; onClose:
           </div>
         }
       >
+        {!plan && (
+          <GuideTip id="tip.allowance">
+            Enter what you receive and how often. Studex spreads it across your spending days to show what's safe to spend each day.
+          </GuideTip>
+        )}
         <FormError message={form.formError} />
         <FormStack>
           <AllowanceFields values={form.values} set={form.set} errors={form.errors} currency={currency} autoFocus={!plan} />
-          {plan && <p className="text-[13px] text-ink-3">Changes apply from the current period. Earlier periods stay as recorded.</p>}
+          {plan && <p className="text-footnote text-ink-3">Changes apply from the current period. Earlier periods stay as recorded.</p>}
         </FormStack>
       </Sheet>
       <ConfirmSheet

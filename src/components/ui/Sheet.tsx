@@ -57,7 +57,7 @@ export function Sheet({ open, onClose, title, children, footer, headerAction }: 
   if (!open) return null
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center" role="presentation">
+    <div className="fixed inset-0 z-50 flex items-end justify-center rail:items-center rail:p-6" role="presentation">
       <div className="animate-fade-in absolute inset-0 bg-scrim" onClick={onClose} aria-hidden />
       <div
         ref={panelRef}
@@ -65,11 +65,11 @@ export function Sheet({ open, onClose, title, children, footer, headerAction }: 
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="animate-sheet-in relative flex max-h-[92dvh] w-full max-w-lg flex-col rounded-t-[32px] bg-surface outline-none"
+        className="animate-sheet-in relative flex max-h-[92dvh] w-full max-w-lg flex-col rounded-t-[32px] bg-surface outline-none rail:max-h-[86dvh] rail:rounded-[32px] rail:shadow-float"
       >
-        <div className="mx-auto mt-2.5 h-1.5 w-10 rounded-full bg-surface-3" aria-hidden />
+        <div className="mx-auto mt-2.5 h-1.5 w-10 rounded-full bg-surface-3 rail:invisible" aria-hidden />
         <header className="flex items-center gap-2 pt-2 pr-4 pb-2 pl-5">
-          <h2 id={titleId} className="flex-1 truncate text-[20px] font-bold tracking-tight">
+          <h2 id={titleId} className="flex-1 truncate text-title-3 font-bold">
             {title}
           </h2>
           {headerAction}

@@ -7,6 +7,7 @@ export function Fab({ label, onClick }: { label: string; onClick: () => void }) 
       type="button"
       aria-label={label}
       onClick={onClick}
+      data-tour="quick-add"
       className="fab press fixed z-40 flex size-14 items-center justify-center rounded-full bg-accent text-accent-ink shadow-float"
       style={{ right: 'max(20px, calc(var(--sar) + 16px))', bottom: 'calc(var(--nav-h) + var(--sab) + 16px)' }}
     >

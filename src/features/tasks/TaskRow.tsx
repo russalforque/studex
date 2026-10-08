@@ -8,8 +8,17 @@ import type { Task } from '@/types/models'
 import { cn } from '@/utils/cn'
 import { formatTime, relativeDay } from '@/utils/dates'
 
-/** One task card: tap the circle to complete it, tap the text to edit. */
-export function TaskRow({ task, showDate = true, showSubject = true }: { task: Task; showDate?: boolean; showSubject?: boolean }) {
+interface TaskRowProps {
+  task: Task
+  showDate?: boolean
+  showSubject?: boolean
+  /** Master-detail layouts: tapping the text selects the task instead of opening the edit sheet. */
+  onSelect?: (task: Task) => void
+  selected?: boolean
+}
+
+/** One task card: tap the circle to complete it, tap the text to edit (or select it on tablets). */
+export function TaskRow({ task, showDate = true, showSubject = true, onSelect, selected }: TaskRowProps) {
   const repos = useRepos()
   const open = useSheets()
   const { today, time } = useClock()
@@ -24,7 +33,13 @@ export function TaskRow({ task, showDate = true, showSubject = true }: { task: T
   const hasMeta = (showSubject && task.subjectName) || showDue || task.dueTime || task.status === 'in_progress'
 
   return (
-    <div className={cn('card flex min-h-16 items-center gap-1 rounded-[26px] py-1.5 pr-3 pl-1.5', done && 'opacity-70')}>
+    <div
+      className={cn(
+        'card flex min-h-16 items-center gap-1 rounded-[26px] py-1.5 pr-3 pl-1.5',
+        done && 'opacity-70',
+        selected && 'border-ink',
+      )}
+    >
       <button
         type="button"
         role="checkbox"
@@ -43,8 +58,13 @@ export function TaskRow({ task, showDate = true, showSubject = true }: { task: T
           {done && <Check className="size-4" strokeWidth={3} aria-hidden />}
         </span>
       </button>
-      <button type="button" onClick={() => open({ type: 'task', task })} className="press min-w-0 flex-1 py-2 text-left">
-        <span className={cn('flex items-center gap-2 text-[15px] leading-snug font-semibold', done && 'text-ink-3 line-through')}>
+      <button
+        type="button"
+        aria-current={selected || undefined}
+        onClick={() => (onSelect ? onSelect(task) : open({ type: 'task', task }))}
+        className="press min-w-0 flex-1 py-2 text-left"
+      >
+        <span className={cn('flex items-center gap-2 text-body leading-snug font-semibold', done && 'text-ink-3 line-through')}>
           <span className="truncate">{task.title}</span>
           {task.priority === 'high' && !done && (
             <Flag className="size-3.5 shrink-0 fill-warn text-warn" aria-label="High priority" />
@@ -53,7 +73,7 @@ export function TaskRow({ task, showDate = true, showSubject = true }: { task: T
         {hasMeta && (
           <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
             {showSubject && task.subjectName && (
-              <span className="inline-flex min-w-0 items-center gap-1.5 text-[12px] font-medium text-ink-2">
+              <span className="inline-flex min-w-0 items-center gap-1.5 text-caption font-medium text-ink-2">
                 <SubjectDot color={task.subjectColor} className="size-2" />
                 <span className="max-w-36 truncate">{task.subjectName}</span>
               </span>

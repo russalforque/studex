@@ -3,6 +3,7 @@ import type { Task, TaskStatus } from '@/types/models'
 import { nowISO } from '@/utils/id'
 import { taskSchema, type TaskInput } from '@/validation/schemas'
 import { NotFoundError, friendlyDbError } from './errors'
+import { unlinkTarget } from './fileRepository'
 
 interface TaskRow {
   id: string
@@ -49,6 +50,12 @@ export function createTaskRepository(db: SqlDatabase) {
         [new Date(Date.now() - 30 * 86_400_000).toISOString()],
       )
       return rows.map(toTask)
+    },
+
+    async get(id: string): Promise<Task> {
+      const rows = await db.query<TaskRow>(`${SELECT} WHERE t.id = ?`, [id])
+      if (!rows[0]) throw new NotFoundError('Task')
+      return toTask(rows[0])
     },
 
     async listForSubject(subjectId: string): Promise<Task[]> {
@@ -121,8 +128,12 @@ export function createTaskRepository(db: SqlDatabase) {
       )
     },
 
+    /** Attached files stay in Files; only the links go. */
     async remove(id: string): Promise<void> {
-      await db.run('DELETE FROM tasks WHERE id = ?', [id])
+      await db.transaction(async (tx) => {
+        await unlinkTarget(tx, 'task', id)
+        await tx.run('DELETE FROM tasks WHERE id = ?', [id])
+      })
     },
   }
 }

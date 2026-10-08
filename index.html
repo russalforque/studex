@@ -2,14 +2,26 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
     />
-    <meta name="theme-color" content="#FAFAF9" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0E0E11" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f2f2f4" />
     <meta name="color-scheme" content="light dark" />
+    <script>
+      // Apply the saved theme before first paint so the app never flashes the wrong colours.
+      // Same key and rules as src/services/theme.ts, which takes over once the app loads.
+      (function () {
+        var pref = null
+        try {
+          pref = localStorage.getItem('studex.theme')
+        } catch (e) {}
+        var dark = pref === 'dark' || (pref !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+      })()
+    </script>
     <title>Studex</title>
   </head>
   <body>

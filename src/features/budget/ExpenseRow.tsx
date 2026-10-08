@@ -18,7 +18,7 @@ export function ExpenseRow({ expense, showDate = true }: { expense: Expense; sho
       subtitle={[expense.description ? expense.categoryName : null, showDate ? relativeDay(expense.spentOn, today) : null]
         .filter(Boolean)
         .join(' · ')}
-      trailing={<span className="tabular text-[16px] font-medium">−{formatMoney(expense.amount, currency)}</span>}
+      trailing={<span className="tabular text-callout font-medium">−{formatMoney(expense.amount, currency)}</span>}
     />
   )
 }

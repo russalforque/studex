@@ -20,6 +20,14 @@ export default defineConfig({
   build: {
     // Served from the device, not the network: one larger bundle is fine.
     chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        // The PDF.js worker ships as .mjs. iOS's local server types files by extension and older
+        // iOS versions don't know .mjs, so a module worker would be refused; .js always works.
+        assetFileNames: (asset) =>
+          asset.names.some((n) => n.endsWith('.mjs')) ? 'assets/[name]-[hash].js' : 'assets/[name]-[hash][extname]',
+      },
+    },
   },
   test: {
     environment: 'node',

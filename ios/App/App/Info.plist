@@ -64,6 +64,12 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Studex uses Face ID only to unlock the app when you turn on App lock.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Studex uses the camera only when you take a profile photo. The photo stays on your device.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Studex opens your photos only when you choose a profile picture. The photo stays on your device.</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 </dict>

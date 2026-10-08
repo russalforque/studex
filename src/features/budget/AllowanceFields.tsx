@@ -1,12 +1,13 @@
 import { useClock } from '@/app/contexts'
-import { DayPicker } from '@/components/ui/choice'
+import { DayPicker, Segmented } from '@/components/ui/choice'
 import { Field, MoneyInput, Select, TextInput } from '@/components/ui/fields'
 import { periodContaining } from '@/domain/periods'
 import { useGoals } from '@/hooks/data'
 import type { Frequency } from '@/types/models'
 import { addDays, formatShortDate } from '@/utils/dates'
+import { formatMoney, parseMoney } from '@/utils/money'
 import type { FieldErrors } from '@/validation/schemas'
-import { FREQUENCY_LABEL, toPlanInput, type AllowanceFormValues } from './allowanceForm'
+import { FREQUENCY_LABEL, savingsFromForm, toPlanInput, type AllowanceFormValues } from './allowanceForm'
 
 export function AllowanceFields({
   values: v,
@@ -25,6 +26,8 @@ export function AllowanceFields({
   const { data: goals = [] } = useGoals()
   const preview = toPlanInput(v, today)
   const period = preview.ok ? periodContaining(preview.data, today) : null
+  const pctSavings = v.savingsMode === 'percent' ? savingsFromForm(v, parseMoney(v.amount)) : null
+  const hasSavings = v.savingsMode === 'percent' ? v.savingsPercent.trim() !== '' : v.savingsAmount.trim() !== ''
 
   return (
     <>
@@ -109,22 +112,53 @@ export function AllowanceFields({
         label="Set aside for savings"
         optional
         error={errors.savingsAmount}
-        hint="Taken out of each allowance before you start spending."
+        hint={
+          pctSavings
+            ? `${formatMoney(pctSavings, currency)} from each allowance, before you start spending.`
+            : 'Taken out of each allowance before you start spending.'
+        }
       >
         {(id, d) => (
-          <MoneyInput
-            id={id}
-            aria-describedby={d}
-            currency={currency}
-            placeholder="0"
-            value={v.savingsAmount}
-            invalid={!!errors.savingsAmount}
-            onChange={(e) => set('savingsAmount', e.target.value)}
-          />
+          <div className="flex flex-col gap-2">
+            <Segmented
+              label="Savings as"
+              value={v.savingsMode}
+              onChange={(m) => set('savingsMode', m)}
+              options={[
+                { value: 'amount', label: 'Amount' },
+                { value: 'percent', label: 'Percent' },
+              ]}
+            />
+            {v.savingsMode === 'amount' ? (
+              <MoneyInput
+                id={id}
+                aria-describedby={d}
+                currency={currency}
+                placeholder="0"
+                value={v.savingsAmount}
+                invalid={!!errors.savingsAmount}
+                onChange={(e) => set('savingsAmount', e.target.value)}
+              />
+            ) : (
+              <div className="flex min-h-13 items-center rounded-2xl border border-line bg-surface px-4 focus-within:border-ink">
+                <input
+                  id={id}
+                  aria-describedby={d}
+                  inputMode="decimal"
+                  placeholder="10"
+                  value={v.savingsPercent}
+                  aria-invalid={!!errors.savingsAmount || undefined}
+                  onChange={(e) => set('savingsPercent', e.target.value)}
+                  className="tabular w-full min-w-0 bg-transparent text-callout outline-none placeholder:text-ink-3"
+                />
+                <span className="ml-1 text-ink-3">%</span>
+              </div>
+            )}
+          </div>
         )}
       </Field>
 
-      {goals.length > 0 && v.savingsAmount.trim() !== '' && (
+      {goals.length > 0 && hasSavings && (
         <Field label="Put savings toward" optional>
           {(id) => (
             <Select id={id} value={v.savingsGoalId ?? ''} onChange={(e) => set('savingsGoalId', e.target.value || null)}>
@@ -140,7 +174,7 @@ export function AllowanceFields({
       )}
 
       {period && v.frequency !== 'daily' && (
-        <p className="text-[13px] text-ink-3">
+        <p className="text-footnote text-ink-3">
           Current period: {formatShortDate(period.start, today)} – {formatShortDate(period.end, today)}
         </p>
       )}

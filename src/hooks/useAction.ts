@@ -27,7 +27,7 @@ export function useAction<A extends unknown[], R>(
       setPending(true)
       try {
         const result = await fn(...args)
-        await Promise.all(areas.map((area) => client.invalidateQueries({ queryKey: [area] })))
+        await Promise.all([...areas, 'insights', 'files'].map((area) => client.invalidateQueries({ queryKey: [area] })))
         if (opts.success) toast(opts.success)
         return result
       } finally {

@@ -15,8 +15,9 @@ and the phase plan.
 | Phase | Scope | Status |
 |---|---|---|
 | 1 — MVP | Onboarding, Home, Subjects, Tasks, Schedule, Exams, Allowance, Expenses, Budget, Savings goals, Settings, SQLite | Done |
-| 2 | Grades, Attendance, Notes | Next |
-| 3 | Budget analytics, backup / export / import | Planned |
+| 2 — 0.2.0 | Terms (switch, archive, view past), backup / restore, CSV export, grades with targets, attendance, notes, exam study topics, profile photo, reminders, search, weekly summary, safe-to-spend explainer, tablet layouts | Done |
+| 3 — 0.3.0 | Study files: import, camera, scanner (crop, rotate, multi-page PDF), Files page, attachments on subjects/tasks/exams/notes, offline viewer, storage check; backups include files | Done |
+| Later | Budget analytics (period history, category trends) | Planned |
 
 ## Getting started
 
@@ -63,6 +64,18 @@ src/
   validation/    zod schemas shared by forms and repositories
 ```
 
+## Native features
+
+| Feature | Plugin | Notes |
+|---|---|---|
+| Backup, CSV export | `@capacitor/filesystem`, `@capacitor/share` | Files go to the share sheet (Files, Drive, email). Restore uses a normal file picker. |
+| Reminders | `@capacitor/local-notifications` | Opt-in. Scheduled on the device for the next 7 days, at most 60 pending (iOS allows 64). Android 13+ asks for permission. |
+| Study files: camera, scanner | `@capacitor/camera` | Native camera on both platforms. No Android camera permission is declared (it uses the system camera app); iOS uses `NSCameraUsageDescription`. |
+| Study files: import | none (system file picker) | The WebView's file input opens the native picker (multiple selection, no storage permission). |
+| Study files: view | `pdfjs-dist` (bundled, lazy-loaded) | Images, PDFs and text open in the app offline. Word files go to another app via `@capacitor-community/file-opener`. |
+| Backups with files | `fflate` (reading) + own zip writer | A standard .zip: `backup.json` plus `files/` and `thumbs/`, written and read in chunks. |
+| Profile photo | none (file input) | Gallery or camera on both platforms; resized to 256px on the device and stored in SQLite. iOS usage strings are in `Info.plist`. |
+
 ## Data safety
 
 - Schema changes go through numbered, append-only migrations, each in its own transaction.
@@ -71,6 +84,8 @@ src/
 - Deleting anything asks first and says what will happen. Subjects keep their tasks and exams;
   categories are archived, not deleted; past allowance periods are never rewritten.
 - Re-submitting a form never creates a duplicate.
+- Restoring a backup checks the file first, shows what it contains, asks before replacing anything, keeps a private
+  copy of the current data, and runs in one transaction. A backup from a newer app version is refused.
 
 ## Common issues
 

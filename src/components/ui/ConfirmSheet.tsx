@@ -32,9 +32,9 @@ export function ConfirmSheet({ open, title, message, confirmLabel, onConfirm, on
 
   return (
     <Sheet open={open} onClose={onClose} title={title}>
-      <p className="text-[15px] text-ink-2">{message}</p>
+      <p className="text-body text-ink-2">{message}</p>
       {error && (
-        <p role="alert" className="mt-3 text-[14px] text-danger">
+        <p role="alert" className="mt-3 text-subhead text-danger">
           {error}
         </p>
       )}

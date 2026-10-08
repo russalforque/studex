@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
 import { IconButton } from '@/components/ui/Button'
@@ -15,10 +15,25 @@ interface PageProps {
   children: ReactNode
   /** Space for a floating button above the nav. */
   fab?: boolean
+  /** Tablet landscape: allow a two-column layout instead of a reading-width column. */
+  wide?: boolean
 }
 
-export function Page({ title, subtitle, back, actions, header, children, fab }: PageProps) {
+/** True once the page has scrolled, so the sticky header can show where content passes under it. */
+function useScrolled(): boolean {
+  const [scrolled, setScrolled] = useState(() => window.scrollY > 4)
+  useEffect(() => {
+    const update = () => setScrolled(window.scrollY > 4)
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    return () => window.removeEventListener('scroll', update)
+  }, [])
+  return scrolled
+}
+
+export function Page({ title, subtitle, back, actions, header, children, fab, wide }: PageProps) {
   const navigate = useNavigate()
+  const scrolled = useScrolled()
   const goBack = () => {
     if (back === true) {
       if (window.history.length > 1) navigate(-1)
@@ -27,8 +42,17 @@ export function Page({ title, subtitle, back, actions, header, children, fab }: 
   }
 
   return (
-    <div className="mx-auto min-h-dvh w-full max-w-lg">
-      <header className="pt-safe sticky top-0 z-30 bg-bg/90 backdrop-blur-md">
+    <div className={cn(
+        'mx-auto min-h-dvh w-full rail:px-4',
+        // `wide` is only set from 1024px up, so it replaces the reading width instead of competing with it.
+        wide ? 'max-w-6xl lg:px-8' : 'max-w-lg rail:max-w-2xl',
+      )}>
+      <header
+        className={cn(
+          'pt-safe sticky top-0 z-30 border-b bg-bg/90 backdrop-blur-md transition-colors duration-200',
+          scrolled ? 'border-line' : 'border-transparent',
+        )}
+      >
         <div className="px-safe flex min-h-18 items-center gap-3 py-2">
           {header ?? (
             <>
@@ -39,7 +63,7 @@ export function Page({ title, subtitle, back, actions, header, children, fab }: 
               )}
               <div className="min-w-0 flex-1">
                 {title && (
-                  <h1 className={cn('truncate font-bold tracking-tight', back ? 'text-[20px]' : 'text-[28px] leading-tight')}>{title}</h1>
+                  <h1 className={cn('truncate font-bold', back ? 'text-title-3' : 'text-large-title leading-tight')}>{title}</h1>
                 )}
               </div>
             </>
@@ -51,7 +75,7 @@ export function Page({ title, subtitle, back, actions, header, children, fab }: 
         className="px-safe pt-1"
         style={{ paddingBottom: `calc(var(--nav-h) + var(--sab) + ${fab ? 96 : 32}px)` }}
       >
-        {subtitle && <div className="-mt-1 mb-5 text-[15px] text-ink-2">{subtitle}</div>}
+        {subtitle && <div className="-mt-1 mb-5 text-body text-ink-2">{subtitle}</div>}
         {children}
       </main>
     </div>

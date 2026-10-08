@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import {
+  ATTENDANCE_STATUSES,
   EXAM_KINDS,
   FREQUENCIES,
   STUDY_STATUSES,
@@ -26,10 +27,20 @@ const money = (label: string) =>
     .positive(`${label[0]!.toUpperCase()}${label.slice(1)} must be more than zero`)
     .max(1_000_000_000_00, 'That amount is too large')
 
+const percent = z.number({ error: 'Enter a percentage' }).gt(0, 'Enter a percentage above 0').max(100, 'Enter 100 or less')
+
 export const settingsSchema = z.object({
   studentName: requiredText('Your name', 60),
   schoolName: optionalText(100),
   currency: z.string().length(3),
+})
+
+/** Profile edits after onboarding. Currency has its own control. */
+export const profileSchema = z.object({
+  studentName: requiredText('Your name', 60),
+  schoolName: optionalText(100),
+  course: optionalText(80),
+  yearLevel: optionalText(30),
 })
 
 export const semesterSchema = z.object({
@@ -44,6 +55,8 @@ export const subjectSchema = z.object({
   room: optionalText(40),
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
   notes: optionalText(2000),
+  targetGrade: percent.nullable().default(null),
+  attendanceRequired: percent.nullable().default(null),
 })
 
 export const classSlotSchema = z
@@ -120,6 +133,72 @@ export const savingsGoalSchema = z.object({
   targetDate: isoDate.nullable(),
 })
 
+export const noteSchema = z
+  .object({
+    title: optionalText(120),
+    body: z.string().max(20_000, 'This note is too long'),
+    subjectId: z.string().nullable(),
+    pinned: z.boolean(),
+  })
+  .refine((v) => (v.title ?? '').trim() !== '' || v.body.trim() !== '', { path: ['body'], message: 'Write something first' })
+
+export const attendanceSchema = z.object({
+  subjectId: z.string().min(1, 'Choose a subject'),
+  date: isoDate,
+  startTime: z.union([time, z.literal('')]),
+  status: z.enum(ATTENDANCE_STATUSES),
+})
+
+export const gradeItemSchema = z
+  .object({
+    title: requiredText('Name', 80),
+    /** Null for work that isn't graded yet. */
+    score: z.number({ error: 'Enter your score' }).min(0, "Score can't be negative").max(100_000).nullable(),
+    maxScore: z.number({ error: 'Enter the total' }).gt(0, 'Total must be more than zero').max(100_000),
+    weight: z.number({ error: 'Enter a weight' }).gt(0, 'Weight must be more than zero').max(1000),
+    gradedOn: isoDate.nullable(),
+    categoryId: z.string().nullable().default(null),
+  })
+  .refine((v) => v.score === null || v.score <= v.maxScore, { path: ['score'], message: 'Score is higher than the total' })
+
+export const gradeCategorySchema = z.object({
+  name: requiredText('Name', 40),
+  weight: z.number({ error: 'Enter a percentage' }).gt(0, 'Enter a percentage above 0').max(100, 'Enter 100 or less'),
+})
+
+export const topicTitleSchema = requiredText('Topic', 120)
+
+export const recurringExpenseSchema = z
+  .object({
+    name: requiredText('Name', 60),
+    amount: money('an amount'),
+    categoryId: z.string().min(1, 'Choose a category'),
+    frequency: z.enum(FREQUENCIES),
+    intervalDays: z.number().int().min(1).max(366).nullable(),
+    startDate: isoDate,
+    endDate: isoDate.nullable(),
+    mode: z.enum(['auto', 'confirm']),
+  })
+  .refine((v) => v.frequency !== 'custom' || v.intervalDays !== null, { path: ['intervalDays'], message: 'How many days apart?' })
+  .refine((v) => v.endDate === null || v.endDate >= v.startDate, { path: ['endDate'], message: 'Ends before it starts' })
+
+export const plannedExpenseSchema = z.object({
+  title: requiredText('What it is for', 80),
+  amount: money('an amount'),
+  categoryId: z.string().min(1, 'Choose a category'),
+  dueDate: isoDate.nullable(),
+  subjectId: z.string().nullable(),
+  taskId: z.string().nullable(),
+  reserve: z.boolean(),
+  note: optionalText(200),
+})
+
+export const expensePresetSchema = z.object({
+  name: requiredText('Name', 40),
+  amount: money('an amount'),
+  categoryId: z.string().min(1, 'Choose a category'),
+})
+
 export const savingsTxSchema = z.object({
   amount: money('an amount'),
   occurredOn: isoDate,
@@ -127,6 +206,10 @@ export const savingsTxSchema = z.object({
 })
 
 export type SettingsInput = z.input<typeof settingsSchema>
+export type ProfileInput = z.input<typeof profileSchema>
+export type NoteInput = z.input<typeof noteSchema>
+export type AttendanceInput = z.input<typeof attendanceSchema>
+export type GradeItemInput = z.input<typeof gradeItemSchema>
 export type SemesterInput = z.input<typeof semesterSchema>
 export type SubjectInput = z.input<typeof subjectSchema>
 export type ClassSlotInput = z.input<typeof classSlotSchema>
@@ -138,6 +221,10 @@ export type AllowancePlanInput = z.input<typeof allowancePlanSchema>
 export type ExtraIncomeInput = z.input<typeof extraIncomeSchema>
 export type SavingsGoalInput = z.input<typeof savingsGoalSchema>
 export type SavingsTxInput = z.input<typeof savingsTxSchema>
+export type GradeCategoryInput = z.input<typeof gradeCategorySchema>
+export type RecurringExpenseInput = z.input<typeof recurringExpenseSchema>
+export type PlannedExpenseInput = z.input<typeof plannedExpenseSchema>
+export type ExpensePresetInput = z.input<typeof expensePresetSchema>
 
 export type FieldErrors = Record<string, string>
 

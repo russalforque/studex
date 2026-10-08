@@ -12,6 +12,7 @@ import {
   type ExtraIncomeInput,
 } from '@/validation/schemas'
 import { AppError, NotFoundError } from './errors'
+import { RESERVED_SQL } from './plannedRepository'
 
 interface PlanRow {
   id: string
@@ -114,6 +115,7 @@ export interface PeriodTotals {
   manualSaved: Minor
   spentBeforeToday: Minor
   spentToday: Minor
+  reserved: Minor
 }
 
 export interface CurrentBudget {
@@ -282,6 +284,8 @@ export function createAllowanceRepository(db: SqlDatabase) {
         manual_saved: number | null
         spent_before: number | null
         spent_today: number | null
+        planned_today: number | null
+        reserved: number | null
       }>(
         `SELECT
           (SELECT SUM(amount_minor) FROM allowances WHERE received_on BETWEEN ? AND ?) AS income,
@@ -289,17 +293,24 @@ export function createAllowanceRepository(db: SqlDatabase) {
           (SELECT SUM(CASE kind WHEN 'deposit' THEN amount_minor ELSE -amount_minor END)
              FROM savings_transactions WHERE source = 'manual' AND occurred_on BETWEEN ? AND ?) AS manual_saved,
           (SELECT SUM(amount_minor) FROM expenses WHERE spent_on >= ? AND spent_on < ?) AS spent_before,
-          (SELECT SUM(amount_minor) FROM expenses WHERE spent_on = ?) AS spent_today`,
+          (SELECT SUM(amount_minor) FROM expenses WHERE spent_on = ?) AS spent_today,
+          (SELECT SUM(e.amount_minor) FROM expenses e JOIN planned_expenses p ON p.expense_id = e.id
+             WHERE e.spent_on = ? AND p.reserve = 1 AND (p.due_date IS NULL OR p.due_date <= ?)) AS planned_today,
+          (${RESERVED_SQL}) AS reserved`,
         // Plain positional parameters: numbered ones are not portable across the native plugins.
-        [period.start, period.end, period.start, period.end, period.start, period.end, period.start, today, today],
+        [period.start, period.end, period.start, period.end, period.start, period.end, period.start, today, today, today, period.end, period.end],
       )
       const r = rows[0]
+      // A reserved planned expense paid today was already set aside this morning, so it counts with
+      // the spending before today: it must not also eat into today's own amount.
+      const plannedToday = r?.planned_today ?? 0
       return {
         income: r?.income ?? 0,
         allocated: r?.allocated ?? 0,
         manualSaved: r?.manual_saved ?? 0,
-        spentBeforeToday: r?.spent_before ?? 0,
-        spentToday: r?.spent_today ?? 0,
+        spentBeforeToday: (r?.spent_before ?? 0) + plannedToday,
+        spentToday: (r?.spent_today ?? 0) - plannedToday,
+        reserved: r?.reserved ?? 0,
       }
     },
 
@@ -317,6 +328,7 @@ export function createAllowanceRepository(db: SqlDatabase) {
         spentBeforeToday: t.spentBeforeToday,
         spentToday: t.spentToday,
         spendingDays,
+        reserved: t.reserved,
       })
       return { plan, period, summary }
     },

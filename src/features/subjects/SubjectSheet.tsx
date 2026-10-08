@@ -10,17 +10,19 @@ import { DeleteAction, FormError, FormStack, MoreDetails } from '@/features/shar
 import { useSubjects } from '@/hooks/data'
 import { useAction } from '@/hooks/useAction'
 import { useForm } from '@/hooks/useForm'
+import type { SubjectUsage } from '@/repositories/subjectRepository'
 import type { Subject } from '@/types/models'
 import { cn } from '@/utils/cn'
 import { subjectSchema, validate } from '@/validation/schemas'
 import { nextSubjectColor, SUBJECT_COLORS } from './colors'
+import { GuideTip } from '@/features/guide/GuideTip'
 
 export function SubjectSheet({ subject, onClose }: { subject?: Subject | undefined; onClose: () => void }) {
   const repos = useRepos()
   const navigate = useNavigate()
   const { currentSemesterId } = useSettings()
   const { data: subjects = [] } = useSubjects()
-  const [confirm, setConfirm] = useState<{ classes: number; tasks: number; exams: number } | null>(null)
+  const [confirm, setConfirm] = useState<SubjectUsage | null>(null)
   const form = useForm(() => ({
     name: subject?.name ?? '',
     code: subject?.code ?? '',
@@ -28,6 +30,8 @@ export function SubjectSheet({ subject, onClose }: { subject?: Subject | undefin
     room: subject?.room ?? '',
     color: subject?.color ?? nextSubjectColor(subjects.map((s) => s.color)),
     notes: subject?.notes ?? '',
+    targetGrade: subject?.targetGrade != null ? String(subject.targetGrade) : '',
+    attendanceRequired: subject?.attendanceRequired != null ? String(subject.attendanceRequired) : '',
   }))
   const { values: v, set, errors } = form
 
@@ -39,15 +43,16 @@ export function SubjectSheet({ subject, onClose }: { subject?: Subject | undefin
         await repos.subjects.create(currentSemesterId, input)
       }
     },
-    ['subjects', 'slots', 'tasks', 'exams'],
+    ['subjects', 'slots', 'tasks', 'exams', 'grades'],
     { success: subject ? 'Subject updated' : 'Subject added' },
   )
-  const remove = useAction(() => repos.subjects.remove((subject?.id ?? "")), ['subjects', 'slots', 'tasks', 'exams'], {
+  const remove = useAction(() => repos.subjects.remove(subject?.id ?? ''), ['subjects', 'slots', 'tasks', 'exams', 'grades', 'attendance', 'notes', 'files'], {
     success: 'Subject deleted',
   })
 
   const onSubmit = async () => {
-    const res = validate(subjectSchema, v)
+    const pct = (s: string) => (s.trim() === '' ? null : Number(s.replace('%', '').replace(',', '.').trim()))
+    const res = validate(subjectSchema, { ...v, targetGrade: pct(v.targetGrade), attendanceRequired: pct(v.attendanceRequired) })
     if (!res.ok) return form.setErrors(res.errors)
     if (await form.submit(() => save.run(res.data))) onClose()
   }
@@ -60,7 +65,10 @@ export function SubjectSheet({ subject, onClose }: { subject?: Subject | undefin
     if (!confirm) return ''
     const parts: string[] = []
     if (confirm.classes) parts.push(`its ${confirm.classes} class time${confirm.classes > 1 ? 's' : ''} will be removed`)
+    const records = confirm.grades + confirm.attendance
+    if (records) parts.push(`${records} grade and attendance record${records > 1 ? 's' : ''} will be removed`)
     const kept = confirm.tasks + confirm.exams
+    if (confirm.files) parts.push(`its ${confirm.files} file${confirm.files > 1 ? 's stay' : ' stays'} in Files`)
     if (kept) parts.push(`${kept} task${kept > 1 ? 's and exams' : ' or exam'} will be kept without a subject`)
     return `“${subject?.name}” will be deleted${parts.length ? `: ${parts.join(', and ')}` : ''}. This can't be undone.`
   })()
@@ -84,6 +92,11 @@ export function SubjectSheet({ subject, onClose }: { subject?: Subject | undefin
             void onSubmit()
           }}
         >
+          {!subject && (
+            <GuideTip id="tip.subject">
+              The colour you pick marks this subject's classes, tasks and files everywhere. Add its class times from Schedule.
+            </GuideTip>
+          )}
           <FormError message={form.formError} />
           <FormStack>
             <Field label="Subject name" error={errors.name}>
@@ -135,8 +148,37 @@ export function SubjectSheet({ subject, onClose }: { subject?: Subject | undefin
                 </div>
               )}
             </Field>
-            <MoreDetails defaultOpen={!!subject?.notes} label="Notes">
-              <Field label="Notes" optional error={errors.notes}>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Target grade" optional error={errors.targetGrade}>
+                {(id, d) => (
+                  <TextInput
+                    id={id}
+                    aria-describedby={d}
+                    inputMode="decimal"
+                    placeholder="e.g. 90"
+                    value={v.targetGrade}
+                    invalid={!!errors.targetGrade}
+                    onChange={(e) => set('targetGrade', e.target.value)}
+                  />
+                )}
+              </Field>
+              <Field label="Attendance needed" optional error={errors.attendanceRequired}>
+                {(id, d) => (
+                  <TextInput
+                    id={id}
+                    aria-describedby={d}
+                    inputMode="decimal"
+                    placeholder="e.g. 80"
+                    value={v.attendanceRequired}
+                    invalid={!!errors.attendanceRequired}
+                    onChange={(e) => set('attendanceRequired', e.target.value)}
+                  />
+                )}
+              </Field>
+            </div>
+            <p className="-mt-3 pl-1 text-footnote text-ink-3">Percentages. Studex compares your estimated grade and attendance with these.</p>
+            <MoreDetails defaultOpen={!!subject?.notes} label="About this subject">
+              <Field label="About this subject" optional error={errors.notes}>
                 {(id) => (
                   <TextArea id={id} placeholder="Grading system, consultation hours…" value={v.notes} onChange={(e) => set('notes', e.target.value)} />
                 )}

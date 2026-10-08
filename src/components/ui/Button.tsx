@@ -2,13 +2,17 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { LoaderCircle } from 'lucide-react'
 import { cn } from '@/utils/cn'
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger'
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'onDark' | 'lightOnDark'
 
 const VARIANTS: Record<Variant, string> = {
   primary: 'bg-accent text-accent-ink active:opacity-90',
   secondary: 'card text-ink active:bg-surface-2',
   ghost: 'bg-transparent text-ink active:bg-surface-2',
   danger: 'bg-danger-soft text-danger active:opacity-80',
+  /** Text button on a black screen (photo editor). */
+  onDark: 'bg-transparent text-white active:bg-white/10',
+  /** The main action on a black screen. */
+  lightOnDark: 'bg-white text-black active:opacity-90',
 }
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -39,7 +43,7 @@ export function Button({
       className={cn(
         'press inline-flex items-center justify-center gap-2 rounded-full font-semibold select-none',
         'disabled:opacity-50 disabled:active:scale-100',
-        size === 'lg' ? 'min-h-14 px-6 text-[16px]' : 'min-h-11 px-5 text-[15px]',
+        size === 'lg' ? 'min-h-14 px-6 text-callout' : 'min-h-11 px-5 text-body',
         block && 'w-full',
         VARIANTS[variant],
         className,
@@ -55,8 +59,8 @@ export function Button({
 interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   label: string
   children: ReactNode
-  /** `accent` is the filled circle for a screen's main add action; `plain` has no outline. */
-  tone?: 'default' | 'accent' | 'plain'
+  /** `accent` is the filled circle for a screen's main add action; `plain` has no outline; `onDark` sits on photos. */
+  tone?: 'default' | 'accent' | 'plain' | 'onDark'
 }
 
 /** Round 44×44 touch target with an accessible label. */
@@ -72,7 +76,9 @@ export function IconButton({ label, children, tone = 'default', className, type 
           ? 'bg-accent text-accent-ink active:opacity-90'
           : tone === 'plain'
             ? 'text-ink-2 active:bg-surface-2'
-            : 'card text-ink active:bg-surface-2',
+            : tone === 'onDark'
+              ? 'border border-white/15 bg-white/10 text-white active:bg-white/20'
+              : 'card text-ink active:bg-surface-2',
         className,
       )}
       {...rest}

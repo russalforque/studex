@@ -18,6 +18,8 @@ interface SubjectRow {
   room: string | null
   color: string
   notes: string | null
+  target_grade: number | null
+  attendance_required: number | null
 }
 
 interface SlotRow {
@@ -42,6 +44,8 @@ const toSubject = (r: SubjectRow): Subject => ({
   room: r.room,
   color: r.color,
   notes: r.notes,
+  targetGrade: r.target_grade,
+  attendanceRequired: r.attendance_required,
 })
 
 const toSlotView = (r: SlotRow): ClassSlotView => ({
@@ -60,6 +64,15 @@ const toSlotView = (r: SlotRow): ClassSlotView => ({
 const SLOT_SELECT = `
   SELECT cs.*, s.name AS subject_name, s.color AS subject_color, s.instructor, s.room AS subject_room
   FROM class_schedules cs JOIN subjects s ON s.id = cs.subject_id`
+
+export interface SubjectUsage {
+  classes: number
+  tasks: number
+  exams: number
+  grades: number
+  attendance: number
+  files: number
+}
 
 const DUPLICATE_SUBJECT = 'You already have a subject with that name this term.'
 
@@ -85,9 +98,9 @@ export function createSubjectRepository(db: SqlDatabase) {
       const now = nowISO()
       try {
         await db.run(
-          `INSERT INTO subjects (id, semester_id, name, code, instructor, room, color, notes, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [id, semesterId, d.name, d.code, d.instructor, d.room, d.color, d.notes, now, now],
+          `INSERT INTO subjects (id, semester_id, name, code, instructor, room, color, notes, target_grade, attendance_required, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [id, semesterId, d.name, d.code, d.instructor, d.room, d.color, d.notes, d.targetGrade, d.attendanceRequired, now, now],
         )
       } catch (err) {
         throw friendlyDbError(err, DUPLICATE_SUBJECT)
@@ -99,9 +112,9 @@ export function createSubjectRepository(db: SqlDatabase) {
       const d = subjectSchema.parse(input)
       try {
         const res = await db.run(
-          `UPDATE subjects SET name = ?, code = ?, instructor = ?, room = ?, color = ?, notes = ?, updated_at = ?
+          `UPDATE subjects SET name = ?, code = ?, instructor = ?, room = ?, color = ?, notes = ?, target_grade = ?, attendance_required = ?, updated_at = ?
            WHERE id = ?`,
-          [d.name, d.code, d.instructor, d.room, d.color, d.notes, nowISO(), id],
+          [d.name, d.code, d.instructor, d.room, d.color, d.notes, d.targetGrade, d.attendanceRequired, nowISO(), id],
         )
         if (res.changes === 0) throw new NotFoundError('Subject')
       } catch (err) {
@@ -110,21 +123,27 @@ export function createSubjectRepository(db: SqlDatabase) {
     },
 
     /** What deleting a subject would touch — shown in the confirmation. */
-    async usage(id: string): Promise<{ classes: number; tasks: number; exams: number }> {
-      const rows = await db.query<{ classes: number; tasks: number; exams: number }>(
+    async usage(id: string): Promise<SubjectUsage> {
+      const rows = await db.query<SubjectUsage>(
         `SELECT
           (SELECT COUNT(*) FROM class_schedules WHERE subject_id = ?) AS classes,
           (SELECT COUNT(*) FROM tasks WHERE subject_id = ?) AS tasks,
-          (SELECT COUNT(*) FROM exams WHERE subject_id = ?) AS exams`,
-        [id, id, id],
+          (SELECT COUNT(*) FROM exams WHERE subject_id = ?) AS exams,
+          (SELECT COUNT(*) FROM grade_items WHERE subject_id = ?) AS grades,
+          (SELECT COUNT(*) FROM attendance WHERE subject_id = ?) AS attendance,
+          (SELECT COUNT(*) FROM files WHERE subject_id = ?) AS files`,
+        [id, id, id, id, id, id],
       )
-      return rows[0] ?? { classes: 0, tasks: 0, exams: 0 }
+      return rows[0] ?? { classes: 0, tasks: 0, exams: 0, grades: 0, attendance: 0, files: 0 }
     },
 
-    /** Removes the subject and its class times. Tasks and exams are kept, just unlinked. */
+    /** Removes the subject with its class times, grades and attendance. Tasks, exams and notes are kept, just unlinked. */
     async remove(id: string): Promise<void> {
       await db.transaction(async (tx) => {
         await tx.run('DELETE FROM class_schedules WHERE subject_id = ?', [id])
+        await tx.run('DELETE FROM grade_items WHERE subject_id = ?', [id])
+        await tx.run('DELETE FROM attendance WHERE subject_id = ?', [id])
+        await tx.run('UPDATE notes SET subject_id = NULL, updated_at = ? WHERE subject_id = ?', [nowISO(), id])
         await tx.run('UPDATE tasks SET subject_id = NULL, updated_at = ? WHERE subject_id = ?', [nowISO(), id])
         await tx.run('UPDATE exams SET subject_id = NULL, updated_at = ? WHERE subject_id = ?', [nowISO(), id])
         await tx.run('DELETE FROM subjects WHERE id = ?', [id])

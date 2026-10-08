@@ -1,9 +1,16 @@
 import type { SqlDatabase } from '@/db/types'
-import type { Expense, ExpenseCategory } from '@/types/models'
+import type { Expense, ExpenseCategory, ExpensePreset } from '@/types/models'
 import type { ISODate } from '@/utils/dates'
 import { nowISO, uuid } from '@/utils/id'
 import type { Minor } from '@/utils/money'
-import { categorySchema, expenseSchema, type CategoryInput, type ExpenseInput } from '@/validation/schemas'
+import {
+  categorySchema,
+  expensePresetSchema,
+  expenseSchema,
+  type CategoryInput,
+  type ExpenseInput,
+  type ExpensePresetInput,
+} from '@/validation/schemas'
 import { AppError, NotFoundError, friendlyDbError } from './errors'
 
 interface CategoryRow {
@@ -55,7 +62,34 @@ export interface CategoryTotal {
   total: Minor
 }
 
+/** A past expense worth repeating with one tap. */
+export interface ExpenseTemplate {
+  categoryId: string
+  categoryName: string
+  categoryIcon: string
+  amount: Minor
+  description: string | null
+}
+
 const DUPLICATE_CATEGORY = 'You already have a category with that name.'
+
+interface PresetRow {
+  id: string
+  name: string
+  amount_minor: number
+  category_id: string
+  category_name: string
+  category_icon: string
+}
+
+const toPreset = (r: PresetRow): ExpensePreset => ({
+  id: r.id,
+  name: r.name,
+  amount: r.amount_minor,
+  categoryId: r.category_id,
+  categoryName: r.category_name,
+  categoryIcon: r.category_icon,
+})
 
 export function createExpenseRepository(db: SqlDatabase) {
   return {
@@ -148,6 +182,75 @@ export function createExpenseRepository(db: SqlDatabase) {
     async recent(limit = 5): Promise<Expense[]> {
       const rows = await db.query<ExpenseRow>(`${SELECT} ORDER BY e.spent_on DESC, e.created_at DESC LIMIT ?`, [limit])
       return rows.map(toExpense)
+    },
+
+    /** Everything, oldest first, for CSV export. */
+    async listAll(): Promise<Expense[]> {
+      const rows = await db.query<ExpenseRow>(`${SELECT} ORDER BY e.spent_on, e.created_at`)
+      return rows.map(toExpense)
+    },
+
+    /** The expenses the student logs most often since `since` (same category, amount and note). */
+    async templates(since: ISODate, limit = 4): Promise<ExpenseTemplate[]> {
+      const rows = await db.query<{
+        category_id: string
+        name: string
+        icon: string
+        amount_minor: number
+        description: string | null
+      }>(
+        `SELECT e.category_id, c.name, c.icon, e.amount_minor, NULLIF(e.description, '') AS description,
+           COUNT(*) AS n, MAX(e.spent_on || e.created_at) AS last
+         FROM expenses e JOIN expense_categories c ON c.id = e.category_id
+         WHERE e.spent_on >= ? AND c.archived_at IS NULL
+         GROUP BY e.category_id, e.amount_minor, COALESCE(e.description, '')
+         ORDER BY n DESC, last DESC LIMIT ?`,
+        [since, limit],
+      )
+      return rows.map((r) => ({
+        categoryId: r.category_id,
+        categoryName: r.name,
+        categoryIcon: r.icon,
+        amount: r.amount_minor,
+        description: r.description,
+      }))
+    },
+
+    // ---- Presets ----
+
+    async listPresets(): Promise<ExpensePreset[]> {
+      const rows = await db.query<PresetRow>(
+        `SELECT p.*, c.name AS category_name, c.icon AS category_icon
+         FROM expense_presets p JOIN expense_categories c ON c.id = p.category_id
+         ORDER BY p.sort_order, p.created_at`,
+      )
+      return rows.map(toPreset)
+    },
+
+    async createPreset(input: ExpensePresetInput): Promise<void> {
+      const d = expensePresetSchema.parse(input)
+      const now = nowISO()
+      await db.run(
+        `INSERT INTO expense_presets (id, name, amount_minor, category_id, sort_order, created_at, updated_at)
+         VALUES (?, ?, ?, ?, (SELECT COALESCE(MAX(sort_order), 0) + 10 FROM expense_presets), ?, ?)`,
+        [uuid(), d.name, d.amount, d.categoryId, now, now],
+      )
+    },
+
+    async updatePreset(id: string, input: ExpensePresetInput): Promise<void> {
+      const d = expensePresetSchema.parse(input)
+      const res = await db.run('UPDATE expense_presets SET name = ?, amount_minor = ?, category_id = ?, updated_at = ? WHERE id = ?', [
+        d.name,
+        d.amount,
+        d.categoryId,
+        nowISO(),
+        id,
+      ])
+      if (res.changes === 0) throw new NotFoundError('Preset')
+    },
+
+    async removePreset(id: string): Promise<void> {
+      await db.run('DELETE FROM expense_presets WHERE id = ?', [id])
     },
 
     async total(from: ISODate, to: ISODate): Promise<Minor> {

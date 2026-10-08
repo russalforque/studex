@@ -8,8 +8,10 @@ import { EmptyState, ErrorNotice, IconCircle, Loading, MetaChip, ProgressBar, Se
 import { progressPercent } from '@/domain/savings'
 import { useSheets } from '@/features/sheets/SheetsContext'
 import { useGoals } from '@/hooks/data'
+import { useMediaQuery, WIDE } from '@/hooks/useMediaQuery'
 import { formatDate } from '@/utils/dates'
 import { formatMoney } from '@/utils/money'
+import { cn } from '@/utils/cn'
 
 const GOAL_TONES: Tone[] = ['mint', 'sky', 'peach', 'lilac', 'pink', 'sun', 'lime']
 
@@ -19,12 +21,14 @@ export function SavingsPage() {
   const { today } = useClock()
   const { data: goals, isPending, error, refetch } = useGoals()
   const total = (goals ?? []).reduce((n, g) => n + g.balance, 0)
+  const wide = useMediaQuery(WIDE)
   const reachedCount = (goals ?? []).filter((g) => g.balance >= g.target).length
 
   return (
     <Page
       title="Savings goals"
       back={true}
+      wide={wide}
       actions={
         <IconButton label="New goal" tone="accent" onClick={() => open({ type: 'goal' })}>
           <Plus className="size-5" />
@@ -50,21 +54,22 @@ export function SavingsPage() {
               {goals.length} goal{goals.length === 1 ? '' : 's'}
               {reachedCount > 0 && ` · ${reachedCount} reached`}
             </HeroPill>
-            <p className="tabular mt-4 text-[36px] leading-none font-bold tracking-tight">{formatMoney(total, currency)}</p>
-            <p className="mt-1.5 text-[14px] text-ink-2">saved in total</p>
+            <p className="tabular mt-4 text-display leading-none font-bold">{formatMoney(total, currency)}</p>
+            <p className="mt-1.5 text-subhead text-ink-2">saved in total</p>
           </HeroCard>
           <Section title="Your goals">
-            <ul className="flex flex-col gap-2.5">
+            {/* Goal cards are self-contained, so tablets lay them out as a grid. */}
+            <ul className={cn('grid gap-2.5 md:grid-cols-2', wide && 'lg:grid-cols-3')}>
               {goals.map((g, i) => {
                 const pct = progressPercent(g.balance, g.target)
                 return (
                   <li key={g.id}>
-                    <Link to={`/savings/${g.id}`} className="card press block rounded-[28px] p-4 active:bg-surface-2">
+                    <Link to={`/savings/${g.id}`} className="card press block h-full rounded-[28px] p-4 active:bg-surface-2">
                       <div className="flex items-center gap-3">
                         <IconCircle icon={PiggyBank} tone={GOAL_TONES[i % GOAL_TONES.length]!} />
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-[15.5px] font-semibold">{g.name}</p>
-                          <p className="tabular mt-0.5 truncate text-[13px] text-ink-2">
+                          <p className="truncate text-callout font-semibold">{g.name}</p>
+                          <p className="tabular mt-0.5 truncate text-footnote text-ink-2">
                             {formatMoney(g.balance, currency)} of {formatMoney(g.target, currency)}
                           </p>
                         </div>
@@ -76,7 +81,7 @@ export function SavingsPage() {
                         <div className="flex-1">
                           <ProgressBar value={pct} tone={pct >= 100 ? 'ok' : 'accent'} label={`${g.name}: ${pct}% saved`} />
                         </div>
-                        <span className="tabular w-10 shrink-0 text-right text-[13px] font-semibold">{pct}%</span>
+                        <span className="tabular w-10 shrink-0 text-right text-footnote font-semibold">{pct}%</span>
                       </div>
                       {g.targetDate && (
                         <div className="mt-3">

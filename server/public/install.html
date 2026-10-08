@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Install Studex on Android · Studex</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="stylesheet" href="/assets/site.css" />
+    <script src="/assets/site.js" defer></script>
+  </head>
+  <body>
+    <header class="top"><div class="wrap"><a class="brand" href="/"><img src="/favicon.png" alt="" />STUDEX</a></div></header>
+    <main class="page">
+      <div class="wrap narrow prose">
+        <h1>Install Studex on Android</h1>
+        <p class="muted">Studex is installed from our website rather than the Play Store. It takes about a minute.</p>
+
+        <div class="card">
+          <h3>Current version</h3>
+          <dl class="facts" id="release-facts" hidden>
+            <dt>Version</dt><dd data-release="version"></dd>
+            <dt>Released</dt><dd data-release="date"></dd>
+            <dt>Size</dt><dd data-release="size"></dd>
+            <dt>Requires</dt><dd data-release="min"></dd>
+            <dt>What's new</dt><dd data-release="notes"></dd>
+            <dt>SHA-256</dt><dd class="mono" data-release="sha256"></dd>
+          </dl>
+          <p class="small muted gap-top flush">The download link is on your payment page and in your purchase email.</p>
+        </div>
+
+        <h2>Steps</h2>
+        <ol>
+          <li>On your phone, open the <b>Download for Android</b> link from your purchase email or payment page.</li>
+          <li>When the download finishes, tap the file <b>Studex-x.y.z.apk</b> (or find it in the Files app under Downloads).</li>
+          <li>The first time, Android says installs from your browser aren't allowed. Tap <b>Settings</b>, turn on <b>Allow from this source</b>, then go back.</li>
+          <li>Tap <b>Install</b>, then <b>Open</b>.</li>
+          <li>Tap <b>Activate Studex</b> and enter your license code. Done: Studex now works offline.</li>
+        </ol>
+        <p>You can turn <b>Allow from this source</b> off again afterwards. It's only needed while installing.</p>
+
+        <h2>Updating</h2>
+        <p>
+          Download the new version the same way and install it over the old one. Your data and activation stay in place, because every Studex release
+          is signed with the same key. Make a backup first anyway (Settings → Data → Back up); it's a good habit.
+        </p>
+
+        <h2>Check the file (optional)</h2>
+        <p>
+          Every release lists its SHA-256 checksum above. On a computer: <span class="mono">certutil -hashfile Studex-x.y.z.apk SHA256</span> (Windows) or
+          <span class="mono">shasum -a 256 Studex-x.y.z.apk</span> (Mac/Linux). The result must match exactly.
+        </p>
+
+        <h2>Troubleshooting</h2>
+        <details><summary>"App not installed" or "package conflicts with an existing package"</summary><p>A Studex build from somewhere else is installed. Back up your data in that copy first, uninstall it, then install ours and restore the backup.</p></details>
+        <details><summary>"There was a problem parsing the package"</summary><p>The download didn't finish. Delete the file and download it again on Wi-Fi. Studex needs Android 7.0 or newer.</p></details>
+        <details><summary>Play Protect warns about the app</summary><p>Play Protect may ask about apps installed from outside the Play Store. Check that the file came from this website (and its checksum matches), then choose <b>Install anyway</b>.</p></details>
+        <details><summary>Installs are blocked by my phone's settings</summary><p>Some phones (Xiaomi, Oppo, Vivo, Huawei) have an extra security switch: Settings → Security (or Privacy) → Install unknown apps. Allow it for your browser or Files app.</p></details>
+        <details><summary>Activation says I'm offline</summary><p>Activation needs the internet once. Connect to Wi-Fi or mobile data, then try again. After that you can use Studex offline.</p></details>
+        <details><summary>Activation says Studex is active on another device</summary><p>Tap <b>Restore purchase</b> and enter your purchase email to move Studex to this phone. You don't need the old phone.</p></details>
+
+        <p class="muted gap-top">Still stuck? Email <a href="mailto:support@studex.example">support@studex.example</a> with your phone model and a screenshot.</p>
+      </div>
+    </main>
+  </body>
+</html>

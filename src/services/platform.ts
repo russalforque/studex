@@ -1,4 +1,4 @@
-import { Capacitor, SystemBars, SystemBarsStyle } from '@capacitor/core'
+import { Capacitor } from '@capacitor/core'
 import { Keyboard } from '@capacitor/keyboard'
 import { SplashScreen } from '@capacitor/splash-screen'
 
@@ -7,11 +7,7 @@ export const isNative = Capacitor.isNativePlatform()
 /** One-time native setup. Every call is guarded so the web build works unchanged. */
 export async function initPlatform(): Promise<void> {
   if (!isNative) return
-  try {
-    await SystemBars.setStyle({ style: SystemBarsStyle.Default })
-  } catch (err) {
-    console.warn('SystemBars unavailable', err)
-  }
+  // Status bar icon colour follows the app theme; see services/theme.ts.
   try {
     // Hide the tab bar and FAB while typing so they never sit on top of the keyboard.
     await Keyboard.addListener('keyboardWillShow', () => document.documentElement.classList.add('keyboard-open'))

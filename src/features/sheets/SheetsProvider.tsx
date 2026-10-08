@@ -1,8 +1,17 @@
 import { useCallback, useState, type ReactNode } from 'react'
+import { AttendanceSheet } from '@/features/academics/AttendanceSheet'
+import { GradeCategoriesSheet } from '@/features/academics/GradeCategoriesSheet'
+import { GradeSheet } from '@/features/academics/GradeSheet'
 import { AllowanceSheet } from '@/features/budget/AllowanceSheet'
 import { ExpenseSheet } from '@/features/budget/ExpenseSheet'
 import { IncomeSheet } from '@/features/budget/IncomeSheet'
+import { PlannedSheet } from '@/features/budget/PlannedSheet'
+import { PresetsSheet } from '@/features/budget/PresetsSheet'
+import { RecurringSheet } from '@/features/budget/RecurringSheet'
+import { SafeToSpendSheet } from '@/features/budget/SafeToSpendSheet'
 import { ExamSheet } from '@/features/exams/ExamSheet'
+import { AddFileFlow } from '@/features/files/AddFileFlow'
+import { NoteSheet } from '@/features/notes/NoteSheet'
 import { GoalSheet } from '@/features/savings/GoalSheet'
 import { SavingsTxSheet } from '@/features/savings/SavingsTxSheet'
 import { ClassSheet } from '@/features/schedule/ClassSheet'
@@ -32,7 +41,15 @@ function SheetSwitch({ req, onClose }: { req: SheetRequest; onClose: () => void 
     case 'task':
       return <TaskSheet task={req.task} subjectId={req.subjectId} dueDate={req.dueDate} onClose={onClose} />
     case 'expense':
-      return <ExpenseSheet expense={req.expense} onClose={onClose} />
+      return <ExpenseSheet expense={req.expense} preset={req.preset} onClose={onClose} />
+    case 'planned':
+      return <PlannedSheet planned={req.planned} subjectId={req.subjectId} taskId={req.taskId} title={req.title} onClose={onClose} />
+    case 'recurring':
+      return <RecurringSheet recurring={req.recurring} onClose={onClose} />
+    case 'presets':
+      return <PresetsSheet onClose={onClose} />
+    case 'gradeCategories':
+      return <GradeCategoriesSheet subjectId={req.subjectId} onClose={onClose} />
     case 'class':
       return <ClassSheet slot={req.slot} subjectId={req.subjectId} day={req.day} onClose={onClose} />
     case 'exam':
@@ -47,5 +64,15 @@ function SheetSwitch({ req, onClose }: { req: SheetRequest; onClose: () => void 
       return <GoalSheet goal={req.goal} onClose={onClose} />
     case 'savingsTx':
       return <SavingsTxSheet goal={req.goal} kind={req.kind} onClose={onClose} />
+    case 'note':
+      return <NoteSheet note={req.note} subjectId={req.subjectId} onClose={onClose} />
+    case 'grade':
+      return <GradeSheet subjectId={req.subjectId} grade={req.grade} onClose={onClose} />
+    case 'attendance':
+      return <AttendanceSheet subjectId={req.subjectId} record={req.record} onClose={onClose} />
+    case 'safeToSpend':
+      return <SafeToSpendSheet onClose={onClose} />
+    case 'addFile':
+      return <AddFileFlow subjectId={req.subjectId} onClose={onClose} />
   }
 }

@@ -59,6 +59,33 @@ const TONES: Record<string, string> = {
   health: 'bg-mint text-mint-ink',
 }
 
+/** The strong colour of each pastel, for bars that sit beside a category's icon. Literal class names so Tailwind generates them. */
+const BAR: Record<string, string> = {
+  food: 'bg-peach-ink',
+  transport: 'bg-sky-ink',
+  school: 'bg-lilac-ink',
+  projects: 'bg-mint-ink',
+  supplies: 'bg-sun-ink',
+  mobile: 'bg-sky-ink',
+  entertainment: 'bg-pink-ink',
+  personal: 'bg-lilac-ink',
+  coffee: 'bg-peach-ink',
+  shopping: 'bg-pink-ink',
+  clothes: 'bg-lime-ink',
+  home: 'bg-mint-ink',
+  gift: 'bg-pink-ink',
+  health: 'bg-mint-ink',
+}
+
+/** Thin bar in the category's colour, e.g. its share of the period's spending. */
+export function CategoryBar({ icon, value }: { icon: string; value: number }) {
+  return (
+    <div className="h-1.5 overflow-hidden rounded-full bg-surface-2" aria-hidden>
+      <div className={cn('h-full rounded-full', BAR[icon] ?? 'bg-ink-3')} style={{ width: `${Math.min(100, Math.max(0, value))}%` }} />
+    </div>
+  )
+}
+
 export function CategoryIcon({ icon, selected, className }: { icon: string; selected?: boolean; className?: string }) {
   const Icon = CATEGORY_ICONS[icon] ?? Circle
   return (

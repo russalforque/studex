@@ -1,9 +1,28 @@
 @import 'tailwindcss';
-@import '@fontsource-variable/inter';
+/* Manrope ships inside the bundle (variable, weights 200–800), so text renders the same offline. */
+@import '@fontsource-variable/manrope';
+
+/*
+ * Layout tiers. One set of components adapts across devices:
+ *   base    phone portrait: single column, floating bottom nav, bottom sheets
+ *   rail:   tablet portrait and landscape phones: navigation rail, wider column, centred dialogs
+ *   short:  landscape phones, where height is scarce: compact rail
+ * Tablet landscape (≥ 1024px) adds two-column layouts through `useMediaQuery(WIDE)`.
+ */
+/* Block form: the one-line form drops everything after the first comma in a media query list. */
+@custom-variant rail {
+  @media (min-width: 768px), (min-width: 600px) and (orientation: landscape) {
+    @slot;
+  }
+}
+@custom-variant short (@media (max-height: 520px));
+
+/* Theme comes from <html data-theme> (System / Light / Dark in Settings), not the media query. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 /*
  * Design tokens. Soft grey canvas, white pill-shaped cards, black primary actions and
- * pastel hero colours. Light and dark follow the device setting.
+ * pastel hero colours. Light, dark or the device setting, chosen in Settings → Appearance.
  */
 :root {
   --bg: #f2f2f4;
@@ -50,56 +69,131 @@
   --sab: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
   --sal: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
   --sar: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
-  /* Floating nav: 56px pill plus its 12px gap above the home indicator. */
-  --nav-h: 68px;
+  /* Floating nav: 68px bar plus its 12px gap above the home indicator. */
+  --nav-h: 80px;
+  /* Tablet navigation rail; zero on phones. */
+  --rail-w: 0px;
 
-  color-scheme: light dark;
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
+/* Tablets and landscape phones: the tab bar becomes a rail on the left. */
+@media (min-width: 768px), (min-width: 600px) and (orientation: landscape) {
   :root {
-    --bg: #0c0c0f;
-    --surface: #18181c;
-    --surface-2: #222228;
-    --surface-3: #2d2d34;
-    --line: #26262d;
-    --ink: #f4f4f5;
-    --ink-2: #a8a8b3;
-    --ink-3: #74747f;
-    --accent: #f4f4f5;
-    --accent-ink: #0c0c0f;
-    --accent-soft: #26233f;
-    --accent-text: #f4f4f5;
-    --danger: #fb8a5c;
-    --danger-soft: #34190f;
-    --warn: #fbbf24;
-    --warn-soft: #2e240b;
-    --ok: #4ade80;
-    --ok-soft: #10281a;
-    --scrim: rgb(0 0 0 / 0.6);
-
-    --mint: #15302a;
-    --mint-ink: #6fdca3;
-    --sky: #152836;
-    --sky-ink: #7ab9f0;
-    --pink: #3a1b2c;
-    --pink-ink: #f08abd;
-    --lime: #2a3212;
-    --lime-ink: #c2e05a;
-    --peach: #3a2416;
-    --peach-ink: #f7a46a;
-    --lilac: #24213f;
-    --lilac-ink: #aaa1ff;
-    --sun: #35300f;
-    --sun-ink: #f2cd52;
-
-    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
-    --shadow-float: 0 10px 30px -10px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.04);
+    --nav-h: 0px;
+    --rail-w: calc(92px + var(--sal));
+  }
+  /* The rail already clears the left notch, so pages don't inset for it again. */
+  .shell .px-safe {
+    padding-left: 16px;
+  }
+}
+@media (min-width: 768px) and (max-height: 520px), (min-width: 600px) and (orientation: landscape) and (max-height: 520px) {
+  :root {
+    --rail-w: calc(76px + var(--sal));
   }
 }
 
+/* Dark theme: chosen in Settings, or following the device when set to System (services/theme.ts). */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0c0c0f;
+  --surface: #18181c;
+  --surface-2: #222228;
+  --surface-3: #2d2d34;
+  --line: #26262d;
+  --ink: #f4f4f5;
+  --ink-2: #a8a8b3;
+  --ink-3: #74747f;
+  --accent: #f4f4f5;
+  --accent-ink: #0c0c0f;
+  --accent-soft: #26233f;
+  --accent-text: #f4f4f5;
+  --danger: #fb8a5c;
+  --danger-soft: #34190f;
+  --warn: #fbbf24;
+  --warn-soft: #2e240b;
+  --ok: #4ade80;
+  --ok-soft: #10281a;
+  --scrim: rgb(0 0 0 / 0.6);
+
+  --mint: #15302a;
+  --mint-ink: #6fdca3;
+  --sky: #152836;
+  --sky-ink: #7ab9f0;
+  --pink: #3a1b2c;
+  --pink-ink: #f08abd;
+  --lime: #2a3212;
+  --lime-ink: #c2e05a;
+  --peach: #3a2416;
+  --peach-ink: #f7a46a;
+  --lilac: #24213f;
+  --lilac-ink: #aaa1ff;
+  --sun: #35300f;
+  --sun-ink: #f2cd52;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-float: 0 10px 30px -10px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.04);
+}
+
+/*
+ * Type scale. Every size carries its own line height and tracking, so a `text-*` class is the
+ * whole style; `leading-*` and `tracking-*` still override when a layout needs it.
+ * Weights: 400 body · 500 labels and secondary text · 600 buttons and section headings ·
+ * 700 page titles and key figures · 800 branding moments only.
+ * Sizes scale with --font-scale, which services/fontScale.ts sets from the iOS text size
+ * (Android's WebView applies the system font size by itself).
+ */
+@theme {
+  --font-sans: 'Manrope Variable', 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --text-caption-2: calc(11px * var(--font-scale, 1));
+  --text-caption-2--line-height: 1.3;
+  --text-caption-2--letter-spacing: 0.01em;
+  --text-caption: calc(12px * var(--font-scale, 1));
+  --text-caption--line-height: 1.35;
+  --text-caption--letter-spacing: 0.005em;
+  --text-footnote: calc(13px * var(--font-scale, 1));
+  --text-footnote--line-height: 1.4;
+  --text-footnote--letter-spacing: 0em;
+  --text-subhead: calc(14px * var(--font-scale, 1));
+  --text-subhead--line-height: 1.45;
+  --text-subhead--letter-spacing: -0.003em;
+  --text-body: calc(15px * var(--font-scale, 1));
+  --text-body--line-height: 1.5;
+  --text-body--letter-spacing: -0.006em;
+  /* Also the form-control size: iOS zooms into any input set below 16px. */
+  --text-callout: calc(16px * var(--font-scale, 1));
+  --text-callout--line-height: 1.45;
+  --text-callout--letter-spacing: -0.008em;
+  --text-headline: calc(17px * var(--font-scale, 1));
+  --text-headline--line-height: 1.35;
+  --text-headline--letter-spacing: -0.012em;
+  --text-title-3: calc(20px * var(--font-scale, 1));
+  --text-title-3--line-height: 1.25;
+  --text-title-3--letter-spacing: -0.016em;
+  --text-title-2: calc(22px * var(--font-scale, 1));
+  --text-title-2--line-height: 1.2;
+  --text-title-2--letter-spacing: -0.018em;
+  --text-title-1: calc(24px * var(--font-scale, 1));
+  --text-title-1--line-height: 1.2;
+  --text-title-1--letter-spacing: -0.02em;
+  --text-large-title: calc(28px * var(--font-scale, 1));
+  --text-large-title--line-height: 1.15;
+  --text-large-title--letter-spacing: -0.022em;
+  --text-display-sm: calc(32px * var(--font-scale, 1));
+  --text-display-sm--line-height: 1.12;
+  --text-display-sm--letter-spacing: -0.024em;
+  --text-display: calc(36px * var(--font-scale, 1));
+  --text-display--line-height: 1.08;
+  --text-display--letter-spacing: -0.026em;
+  /* The focus timer. Large figures stay readable without scaling further. */
+  --text-display-xl: 64px;
+  --text-display-xl--line-height: 1;
+  --text-display-xl--letter-spacing: -0.03em;
+}
+
 @theme inline {
-  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
@@ -153,10 +247,23 @@
     background: var(--bg);
     color: var(--ink);
     font-family: var(--font-sans);
-    font-size: 16px;
-    line-height: 1.45;
-    font-feature-settings: 'cv11', 'ss01';
+    font-size: var(--text-callout);
+    line-height: 1.5;
+    font-weight: 400;
+    /* Real weights only: never let the browser fake a bold or italic. */
+    font-synthesis-weight: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     overscroll-behavior-y: none;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+    overflow-wrap: break-word;
   }
   button,
   [role='button'] {
@@ -180,8 +287,17 @@
 }
 
 @layer utilities {
+  /* Money, timers and stats: equal-width digits so figures line up and don't jitter as they change. */
   .tabular {
     font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+  /* Sideways-scrolling rows (filter chips) keep touch scrolling but hide the bar. */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
   .pt-safe {
     padding-top: var(--sat);
@@ -194,9 +310,10 @@
     padding-right: max(16px, var(--sar));
   }
   .label-caps {
-    font-size: 12px;
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
     font-weight: 600;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--ink-3);
   }
@@ -235,10 +352,8 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .subject-tint {
-    color: color-mix(in srgb, var(--c) 55%, white);
-  }
+[data-theme='dark'] .subject-tint {
+  color: color-mix(in srgb, var(--c) 55%, white);
 }
 
 /* Hero card backgrounds. */
@@ -259,6 +374,22 @@
 }
 .hero-lilac {
   background: linear-gradient(120deg, var(--lilac) 0%, var(--pink) 100%);
+}
+
+/*
+ * App tour: the spotlight's huge shadow is the dimmed backdrop; a light ring outlines the control.
+ * The spread must exceed the screen diagonal (≤ 1.42 vmax): shadow corners are rounded by radius + spread.
+ */
+.tour-spotlight {
+  box-shadow:
+    0 0 0 2px rgb(255 255 255 / 0.85),
+    0 0 0 200vmax var(--scrim);
+  transition:
+    top 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    left 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    width 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    height 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: fade-in 200ms ease-out;
 }
 
 /* The bottom nav steps aside while the on-screen keyboard is open. */
@@ -315,6 +446,22 @@ html.keyboard-open .fab {
 }
 .animate-sheet-in {
   animation: sheet-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* On tablets sheets open as centred dialogs. */
+@media (min-width: 768px) {
+  .animate-sheet-in {
+    animation: dialog-in 200ms ease-out;
+  }
 }
 .animate-fade-in {
   animation: fade-in 200ms ease-out;

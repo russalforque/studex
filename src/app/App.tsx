@@ -5,29 +5,47 @@ import { AppShell } from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/Button'
 import { ErrorNotice, Loading } from '@/components/ui/display'
 import { ToastProvider } from '@/components/ui/Toast'
+import { TourProvider } from '@/features/guide/TourProvider'
 import { SheetsProvider } from '@/features/sheets/SheetsProvider'
 import { MONEY } from '@/hooks/queryKeys'
+import { AcademicsPage } from '@/pages/AcademicsPage'
 import { AllowancePage } from '@/pages/AllowancePage'
 import { BudgetPage } from '@/pages/BudgetPage'
 import { ExamsPage } from '@/pages/ExamsPage'
 import { ExpenseHistoryPage } from '@/pages/ExpenseHistoryPage'
+import { FocusPage } from '@/pages/FocusPage'
+import { FilesPage } from '@/pages/FilesPage'
 import { GoalDetailPage } from '@/pages/GoalDetailPage'
+import { HelpPage } from '@/pages/HelpPage'
 import { HomePage } from '@/pages/HomePage'
+import { LicensePage } from '@/pages/LicensePage'
 import { MorePage } from '@/pages/MorePage'
+import { NotesPage } from '@/pages/NotesPage'
 import { OnboardingPage } from '@/pages/OnboardingPage'
+import { PlannedPage } from '@/pages/PlannedPage'
+import { RecurringPage } from '@/pages/RecurringPage'
 import { SavingsPage } from '@/pages/SavingsPage'
 import { SchedulePage } from '@/pages/SchedulePage'
+import { SearchPage } from '@/pages/SearchPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { SubjectDetailPage } from '@/pages/SubjectDetailPage'
 import { SubjectsPage } from '@/pages/SubjectsPage'
 import { TasksPage } from '@/pages/TasksPage'
+import { TermsPage } from '@/pages/TermsPage'
+import { WeekPage } from '@/pages/WeekPage'
+import { FocusSync } from '@/features/focus/FocusSync'
+import { LicenseGate } from '@/features/license/LicenseGate'
+import { AppLockGate } from '@/features/lock/AppLock'
+import { clearStaleLock } from '@/features/lock/lockContext'
 import { DatabaseTooNewError } from '@/db/migrate'
 import type { Repositories } from '@/repositories'
 import { openDatabase } from '@/services/database'
 import { hideSplash } from '@/services/platform'
 import { ClockProvider } from './ClockProvider'
 import { RepositoriesContext, SettingsContext, useClock, useRepos } from './contexts'
+import { FileMaintenance } from './FileMaintenance'
 import { NativeBackHandler } from './NativeBackHandler'
+import { ReminderSync } from './ReminderSync'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,7 +61,9 @@ export function App() {
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
         <ClockProvider>
-          <DatabaseGate />
+          <LicenseGate>
+            <DatabaseGate />
+          </LicenseGate>
         </ClockProvider>
       </ToastProvider>
     </QueryClientProvider>
@@ -114,50 +134,86 @@ function SettingsGate() {
 
   if (isPending) return <Loading />
   if (error) return <ErrorNotice message="Your settings couldn't be loaded." onRetry={() => void refetch()} />
-  if (!settings?.onboardedAt) return <OnboardingPage />
+  if (!settings?.onboardedAt) return <FreshInstall />
 
   return (
     <SettingsContext.Provider value={settings}>
-      <AllowanceSync />
-      <HashRouter>
-        <NativeBackHandler />
-        <SheetsProvider>
-          <Routes>
-            <Route element={<AppShell />}>
-              <Route index element={<HomePage />} />
-              <Route path="tasks" element={<TasksPage />} />
-              <Route path="schedule" element={<SchedulePage />} />
-              <Route path="budget" element={<BudgetPage />} />
-              <Route path="budget/allowance" element={<AllowancePage />} />
-              <Route path="budget/history" element={<ExpenseHistoryPage />} />
-              <Route path="more" element={<MorePage />} />
-              <Route path="subjects" element={<SubjectsPage />} />
-              <Route path="subjects/:id" element={<SubjectDetailPage />} />
-              <Route path="exams" element={<ExamsPage />} />
-              <Route path="savings" element={<SavingsPage />} />
-              <Route path="savings/:id" element={<GoalDetailPage />} />
-              <Route path="settings" element={<SettingsPage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Route>
-          </Routes>
-        </SheetsProvider>
-      </HashRouter>
+      <AppLockGate>
+        <AllowanceSync />
+        <FileMaintenance />
+        <HashRouter>
+          <NativeBackHandler />
+          <ReminderSync />
+          <FocusSync />
+          <SheetsProvider>
+            <TourProvider>
+              <Routes>
+                <Route element={<AppShell />}>
+                  <Route index element={<HomePage />} />
+                  <Route path="tasks" element={<TasksPage />} />
+                  <Route path="schedule" element={<SchedulePage />} />
+                  <Route path="budget" element={<BudgetPage />} />
+                  <Route path="budget/allowance" element={<AllowancePage />} />
+                  <Route path="budget/history" element={<ExpenseHistoryPage />} />
+                  <Route path="budget/planned" element={<PlannedPage />} />
+                  <Route path="budget/recurring" element={<RecurringPage />} />
+                  <Route path="focus" element={<FocusPage />} />
+                  <Route path="week" element={<WeekPage />} />
+                  <Route path="more" element={<MorePage />} />
+                  <Route path="subjects" element={<SubjectsPage />} />
+                  <Route path="subjects/:id" element={<SubjectDetailPage />} />
+                  <Route path="exams" element={<ExamsPage />} />
+                  <Route path="savings" element={<SavingsPage />} />
+                  <Route path="savings/:id" element={<GoalDetailPage />} />
+                  <Route path="settings" element={<SettingsPage />} />
+                  <Route path="terms" element={<TermsPage />} />
+                  <Route path="notes" element={<NotesPage />} />
+                  <Route path="files" element={<FilesPage />} />
+                  <Route path="grades" element={<AcademicsPage />} />
+                  <Route path="search" element={<SearchPage />} />
+                  <Route path="help" element={<HelpPage />} />
+                  <Route path="license" element={<LicensePage />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Route>
+              </Routes>
+            </TourProvider>
+          </SheetsProvider>
+        </HashRouter>
+      </AppLockGate>
     </SettingsContext.Provider>
   )
 }
 
-/** Records each new allowance period as the days go by (idempotent, so safe on every start). */
+/**
+ * Records each new allowance period and every automatic recurring expense that has come due,
+ * as the days go by. Nothing runs while the app is closed, so on each start (and day change)
+ * everything missed since is caught up. Both steps are idempotent, so this is safe to repeat.
+ */
 function AllowanceSync() {
   const repos = useRepos()
   const client = useQueryClient()
   const { today } = useClock()
   useEffect(() => {
+    const refresh = () => [...MONEY, 'insights'].forEach((area) => void client.invalidateQueries({ queryKey: [area] }))
     repos.allowance
       .ensureScheduled(today)
-      .then((created) => {
-        if (created > 0) MONEY.forEach((area) => void client.invalidateQueries({ queryKey: [area] }))
-      })
+      .then((created) => created > 0 && refresh())
       .catch((err) => console.error('Recording allowance periods failed', err))
+    repos.recurring
+      .reconcile(today)
+      .then((recorded) => recorded > 0 && refresh())
+      .catch((err) => console.error('Recording recurring expenses failed', err))
   }, [repos, client, today])
   return null
+}
+
+/**
+ * Before onboarding there is nothing to protect. iOS keeps Keychain items after an app is
+ * deleted, so a lock from an earlier install is cleared here rather than locking a fresh start.
+ */
+function FreshInstall() {
+  useEffect(() => {
+    void clearStaleLock().catch(() => undefined)
+  }, [])
+  return <OnboardingPage />
 }

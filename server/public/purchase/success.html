@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Your purchase · Studex</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="stylesheet" href="/assets/site.css" />
+    <script src="/assets/site.js" defer></script>
+  </head>
+  <body>
+    <header class="top"><div class="wrap"><a class="brand" href="/"><img src="/favicon.png" alt="" />STUDEX</a></div></header>
+    <main class="page">
+      <div class="wrap narrow" id="order">
+        <div id="order-pending" class="card center">
+          <div class="spinner" aria-hidden="true"></div>
+          <h1 class="gap-top">Confirming your payment…</h1>
+          <p class="muted">This usually takes a few seconds. Keep this page open; it updates on its own.</p>
+          <p id="order-slow" class="alert alert-info" hidden>
+            Still waiting for the payment provider. If you paid, your license will arrive by email as soon as the payment is confirmed. You can close
+            this page. If nothing arrives within an hour, contact <a href="mailto:support@studex.example">support@studex.example</a>.
+          </p>
+        </div>
+
+        <div id="order-paid" hidden>
+          <p class="muted small tight">STUDEX</p>
+          <h1>Payment successful</h1>
+          <p class="muted">Your lifetime access is ready. A copy of everything below was sent to <b id="order-email"></b>.</p>
+
+          <div class="card">
+            <div id="license-block" hidden>
+              <h3>Your license code</h3>
+              <p id="license-code" class="code"></p>
+              <button id="copy-code" class="btn btn-secondary btn-sm" type="button">Copy code</button>
+              <p class="small muted gap-top">Keep this code private. It's also in your email.</p>
+            </div>
+            <p id="license-emailed" class="muted" hidden>Your license code is in your purchase email. Lost it? <a href="/recover.html">Get a new code</a>.</p>
+          </div>
+
+          <div class="card gap-top">
+            <h3>1. Download for Android</h3>
+            <a id="download-link" class="btn btn-primary btn-block" href="#">Download for Android</a>
+            <p class="small muted gap-top">Android 7.0 or newer. <a href="/install.html">Installation guide</a></p>
+            <h3 class="gap-top">2. Activate Studex</h3>
+            <p class="muted">Open Studex, tap <b>Activate Studex</b> and enter your code. After that, Studex works offline.</p>
+            <h3 class="gap-top">3. Back up your data now and then</h3>
+            <p class="muted flush">Your license unlocks the app; your classes and budget stay on your phone. Settings → Data → Back up keeps a copy.</p>
+          </div>
+        </div>
+
+        <div id="order-problem" class="card" hidden>
+          <h1>There's a problem with this order</h1>
+          <p id="order-problem-text" class="muted"></p>
+          <a class="btn btn-secondary" href="/#pricing">Back to Studex</a>
+        </div>
+
+        <div id="order-missing" class="card" hidden>
+          <h1>We couldn't find this order</h1>
+          <p class="muted">
+            If you paid, your license code is on its way to your email. You can also <a href="/recover.html">recover your license</a> or contact
+            <a href="mailto:support@studex.example">support@studex.example</a>.
+          </p>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

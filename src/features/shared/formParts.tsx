@@ -12,7 +12,7 @@ import { cn } from '@/utils/cn'
 export function FormError({ message }: { message: string | null }) {
   if (!message) return null
   return (
-    <p role="alert" className="mb-3 rounded-2xl bg-danger-soft px-4 py-3 text-[14px] text-danger">
+    <p role="alert" className="mb-3 rounded-2xl bg-danger-soft px-4 py-3 text-subhead text-danger">
       {message}
     </p>
   )
@@ -31,7 +31,7 @@ export function MoreDetails({ children, defaultOpen = false, label = 'More detai
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className="press inline-flex min-h-10 items-center gap-1 rounded-full bg-surface-2 px-4 text-[14px] font-semibold text-ink"
+        className="press inline-flex min-h-10 items-center gap-1 rounded-full bg-surface-2 px-4 text-subhead font-semibold text-ink"
       >
         {label}
         <ChevronDown className={cn('size-4 transition-transform', open && 'rotate-180')} aria-hidden />

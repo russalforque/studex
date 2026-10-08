@@ -1,0 +1,21 @@
+# Copy to .dev.vars for `npm run dev` (wrangler dev). .dev.vars is git-ignored.
+# Use PayMongo TEST keys only (sk_test_...). Generate the licensing keys with `npm run keys`.
+
+ENVIRONMENT=development
+PUBLIC_ORIGIN=http://localhost:8787
+APP_ORIGINS=http://localhost:5173,https://localhost,capacitor://localhost
+EMAIL_PROVIDER=log
+ADMIN_EMAILS=dev@example.com
+ADMIN_DEV_EMAIL=dev@example.com
+
+PAYMONGO_SECRET_KEY=sk_test_replace_me
+PAYMONGO_WEBHOOK_SECRET=whsk_replace_me
+PAYMONGO_LIVEMODE=false
+
+LICENSE_SIGNING_KID=dev1
+LICENSE_SIGNING_KEY=replace_with_output_of_npm_run_keys
+LICENSE_PEPPER=replace_with_output_of_npm_run_keys
+DATA_KEY=replace_with_output_of_npm_run_keys
+
+# Only needed with EMAIL_PROVIDER=resend
+# RESEND_API_KEY=re_replace_me
