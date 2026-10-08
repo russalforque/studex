@@ -1,0 +1,141 @@
+{
+  "fps": 30,
+  "transition": 15,
+  "scenes": [
+    {
+      "id": "hook",
+      "duration": 184,
+      "voice": [
+        {
+          "file": "voiceover/hook-0.wav",
+          "text": "Classes.",
+          "from": 6,
+          "frames": 22
+        },
+        {
+          "file": "voiceover/hook-1.wav",
+          "text": "Tasks.",
+          "from": 28,
+          "frames": 21
+        },
+        {
+          "file": "voiceover/hook-2.wav",
+          "text": "Exams.",
+          "from": 49,
+          "frames": 24
+        },
+        {
+          "file": "voiceover/hook-3.wav",
+          "text": "Allowance.",
+          "from": 73,
+          "frames": 22
+        },
+        {
+          "file": "voiceover/hook-4.wav",
+          "text": "Savings.",
+          "from": 95,
+          "frames": 23
+        },
+        {
+          "file": "voiceover/hook-5.wav",
+          "text": "That's a lot to juggle.",
+          "from": 118,
+          "frames": 39
+        }
+      ],
+      "start": 0
+    },
+    {
+      "id": "intro",
+      "duration": 116,
+      "voice": [
+        {
+          "file": "voiceover/intro-0.wav",
+          "text": "Meet Studex. Your student life, organized.",
+          "from": 8,
+          "frames": 81
+        }
+      ],
+      "start": 169
+    },
+    {
+      "id": "schedule",
+      "duration": 156,
+      "voice": [
+        {
+          "file": "voiceover/schedule-0.wav",
+          "text": "See your next class, and everything due today, the moment you open the app.",
+          "from": 8,
+          "frames": 121
+        }
+      ],
+      "start": 270
+    },
+    {
+      "id": "exams",
+      "duration": 194,
+      "voice": [
+        {
+          "file": "voiceover/exams-0.wav",
+          "text": "Count down to every exam, tick off your study topics, and stay on track for your target grade.",
+          "from": 8,
+          "frames": 159
+        }
+      ],
+      "start": 411
+    },
+    {
+      "id": "money",
+      "duration": 224,
+      "voice": [
+        {
+          "file": "voiceover/money-0.wav",
+          "text": "Know exactly how much is safe to spend today, so your allowance lasts the week. And watch your savings grow.",
+          "from": 8,
+          "frames": 189
+        }
+      ],
+      "start": 590
+    },
+    {
+      "id": "files",
+      "duration": 147,
+      "voice": [
+        {
+          "file": "voiceover/files-0.wav",
+          "text": "Scan your handouts into clean PDFs, filed by subject.",
+          "from": 8,
+          "frames": 112
+        }
+      ],
+      "start": 799
+    },
+    {
+      "id": "privacy",
+      "duration": 146,
+      "voice": [
+        {
+          "file": "voiceover/privacy-0.wav",
+          "text": "It works offline. No account. Your data stays on your phone.",
+          "from": 8,
+          "frames": 111
+        }
+      ],
+      "start": 931
+    },
+    {
+      "id": "outro",
+      "duration": 188,
+      "voice": [
+        {
+          "file": "voiceover/outro-0.wav",
+          "text": "Studex. Pay once, keep it for life. Get it now at studex dot P H.",
+          "from": 8,
+          "frames": 135
+        }
+      ],
+      "start": 1062
+    }
+  ],
+  "total": 1250
+}

@@ -5,3 +5,8 @@ dist
 
 # Ignore the output video from Git but not videos you import into src/.
 out
+
+# Python env for the voiceover and music scripts
+.venv
+*.onnx
+voices-v1.0.bin

@@ -12,7 +12,7 @@ export const Outro: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const pop = spring({ frame, fps, config: { damping: 14 } });
-  const pulse = 1 + Math.max(0, Math.sin((frame - 50) / 6)) * 0.03 * (frame > 50 ? 1 : 0);
+  const pulse = 1 + Math.max(0, Math.sin((frame - 110) / 6)) * 0.03 * (frame > 110 ? 1 : 0);
   return (
     <Scene>
       <div
@@ -40,12 +40,12 @@ export const Outro: React.FC = () => {
         <Rise start={8}>
           <div style={{ marginTop: 50, fontSize: 132, fontWeight: 800, letterSpacing: -5 }}>Studex</div>
         </Rise>
-        <Rise start={14}>
+        <Rise start={30}>
           <div style={{ fontSize: 56, fontWeight: 600, color: C.ink2, lineHeight: 1.2 }}>
             Pay once. Keep it for life.
           </div>
         </Rise>
-        <Rise start={22}>
+        <Rise start={52}>
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 18, marginTop: 50 }}>
             {CHIPS.map((c) => (
               <div key={c.text} style={{ padding: "14px 28px", borderRadius: 999, background: c.bg, fontSize: 34, fontWeight: 700 }}>
@@ -54,7 +54,7 @@ export const Outro: React.FC = () => {
             ))}
           </div>
         </Rise>
-        <Rise start={32}>
+        <Rise start={78}>
           <div
             style={{
               marginTop: 70,
@@ -70,7 +70,7 @@ export const Outro: React.FC = () => {
             Get Studex · ₱199
           </div>
         </Rise>
-        <Rise start={40}>
+        <Rise start={92}>
           <div style={{ marginTop: 40, fontSize: 46, fontWeight: 700, color: C.ink2 }}>
             studex.ph · Android
           </div>

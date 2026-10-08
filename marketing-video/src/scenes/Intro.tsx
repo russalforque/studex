@@ -35,7 +35,7 @@ export const Intro: React.FC = () => {
         <Rise start={12}>
           <div style={{ marginTop: 70, fontSize: 168, fontWeight: 800, letterSpacing: -6 }}>Studex</div>
         </Rise>
-        <Rise start={20}>
+        <Rise start={40}>
           <div style={{ marginTop: 10, fontSize: 60, fontWeight: 600, color: C.ink2, lineHeight: 1.2 }}>
             Your student life,
             <br />

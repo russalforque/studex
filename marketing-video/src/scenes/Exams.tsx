@@ -30,8 +30,8 @@ const Topic: React.FC<{ name: string; at: number | null }> = ({ name, at }) => {
 
 export const Exams: React.FC = () => {
   const frame = useCurrentFrame();
-  const doneCount = Math.min(4, Math.max(0, Math.floor((frame - 34) / 10) + 1));
-  const progress = interpolate(frame, [34, 74], [0, 4 / 6], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const doneCount = Math.min(4, Math.max(0, Math.floor((frame - 40) / 18) + 1));
+  const progress = interpolate(frame, [40, 104], [0, 4 / 6], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
     <Scene>
       <Headline kicker="Exams & grades" kickerColor={C.pink} title="Ace every exam." sub="Countdowns, study topics, grade targets." />
@@ -58,11 +58,11 @@ export const Exams: React.FC = () => {
         <Rise start={22}>
           <Card style={{ marginTop: 24, padding: "14px 28px" }}>
             {TOPICS.map((t, i) => (
-              <Topic key={t} name={t} at={i < 4 ? 34 + i * 10 : null} />
+              <Topic key={t} name={t} at={i < 4 ? 40 + i * 18 : null} />
             ))}
           </Card>
         </Rise>
-        <Rise start={70}>
+        <Rise start={126}>
           <Card style={{ marginTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <div style={{ fontSize: 24, fontWeight: 600, color: C.ink2 }}>Physics · current grade</div>

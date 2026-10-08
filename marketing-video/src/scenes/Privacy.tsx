@@ -30,7 +30,7 @@ export const Privacy: React.FC = () => {
         </Rise>
         <div style={{ marginTop: 70 }}>
           {POINTS.map((p, i) => (
-            <Rise key={p.text} start={22 + i * 10}>
+            <Rise key={p.text} start={[12, 46, 70][i]}>
               <div style={{ display: "flex", alignItems: "center", gap: 32, marginTop: 34 }}>
                 <IconCircle bg={p.bg} size={96}>
                   <p.icon size={50} color={p.ink} />

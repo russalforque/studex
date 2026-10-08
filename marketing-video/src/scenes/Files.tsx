@@ -7,9 +7,9 @@ const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
 export const Files: React.FC = () => {
   const frame = useCurrentFrame();
-  const scan = interpolate(frame, [26, 62], [0, 1], clamp);
-  const flash = interpolate(frame, [62, 64, 72], [0, 0.8, 0], clamp);
-  const saved = useProgress(70, 14);
+  const scan = interpolate(frame, [30, 80], [0, 1], clamp);
+  const flash = interpolate(frame, [80, 82, 90], [0, 0.8, 0], clamp);
+  const saved = useProgress(88, 14);
   return (
     <Scene>
       <Headline kicker="Notes & files" kickerColor={C.lime} title="Scan handouts." sub="Camera to clean PDF, filed by subject." />

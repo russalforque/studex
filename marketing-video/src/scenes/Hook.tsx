@@ -1,6 +1,9 @@
 import { interpolate, useCurrentFrame } from "remotion";
 import { C } from "../theme";
+import { scene } from "../timeline";
 import { EASE, Rise, Scene } from "../ui";
+
+const LINES = scene("hook").voice;
 
 const WORDS = [
   { text: "Classes.", color: C.sky },
@@ -16,7 +19,7 @@ export const Hook: React.FC = () => {
     <Scene background={C.ink}>
       <div style={{ position: "absolute", left: 100, right: 100, top: 470 }}>
         {WORDS.map((w, i) => {
-          const start = i * 9;
+          const start = LINES[i].from - 2;
           return (
             <div
               key={w.text}
@@ -41,9 +44,9 @@ export const Hook: React.FC = () => {
             </div>
           );
         })}
-        <Rise start={56}>
+        <Rise start={LINES[5].from - 2}>
           <div style={{ marginTop: 60, fontSize: 64, fontWeight: 600, color: "#fff", lineHeight: 1.2 }}>
-            A lot to juggle?
+            That's a lot to juggle.
           </div>
         </Rise>
       </div>

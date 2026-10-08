@@ -4,9 +4,9 @@ import { C } from "../theme";
 import { Card, Headline, Hero, Label, Phone, Rise, Scene, useProgress } from "../ui";
 
 const TASKS = [
-  { title: "Lab report", subject: "Chemistry", color: C.pinkInk, at: 50 },
-  { title: "Read chapter 4", subject: "History", color: C.peachInk, at: 66 },
-  { title: "Problem set 7", subject: "Calculus II", color: C.skyInk, at: 82 },
+  { title: "Lab report", subject: "Chemistry", color: C.pinkInk, at: 60 },
+  { title: "Read chapter 4", subject: "History", color: C.peachInk, at: 80 },
+  { title: "Problem set 7", subject: "Calculus II", color: C.skyInk, at: 100 },
 ];
 
 const TaskRow: React.FC<(typeof TASKS)[number]> = ({ title, subject, color, at }) => {
@@ -47,7 +47,7 @@ const TaskRow: React.FC<(typeof TASKS)[number]> = ({ title, subject, color, at }
 
 export const Schedule: React.FC = () => {
   const frame = useCurrentFrame();
-  const mins = Math.round(interpolate(frame, [20, 110], [25, 18], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+  const mins = Math.round(interpolate(frame, [20, 150], [25, 18], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
   return (
     <Scene>
       <Headline kicker="Classes & tasks" kickerColor={C.sky} title="Know what's next." sub="Today's classes and to-dos at a glance." />

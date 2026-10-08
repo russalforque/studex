@@ -4,14 +4,14 @@ import { C } from "../theme";
 import { Bar, Card, Headline, Hero, IconCircle, Label, Phone, Rise, Scene } from "../ui";
 
 const EXPENSES = [
-  { icon: Utensils, bg: C.peach, ink: C.peachInk, name: "Lunch", cat: "Food", amount: "₱85", at: 40 },
-  { icon: Bus, bg: C.sky, ink: C.skyInk, name: "Jeepney", cat: "Transport", amount: "₱26", at: 50 },
+  { icon: Utensils, bg: C.peach, ink: C.peachInk, name: "Lunch", cat: "Food", amount: "₱85", at: 50 },
+  { icon: Bus, bg: C.sky, ink: C.skyInk, name: "Jeepney", cat: "Transport", amount: "₱26", at: 62 },
 ];
 
 export const Money: React.FC = () => {
   const frame = useCurrentFrame();
   const safe = Math.round(interpolate(frame, [18, 48], [0, 185], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
-  const saved = interpolate(frame, [64, 104], [0, 0.64], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const saved = interpolate(frame, [150, 195], [0, 0.64], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
     <Scene>
       <Headline kicker="Allowance & savings" kickerColor={C.mint} title="Spend smart." sub="See what's safe to spend, every day." />
@@ -51,7 +51,7 @@ export const Money: React.FC = () => {
             </Rise>
           ))}
         </Card>
-        <Rise start={60}>
+        <Rise start={140}>
           <Card style={{ marginTop: 24 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
               <IconCircle bg={C.lilac}>
