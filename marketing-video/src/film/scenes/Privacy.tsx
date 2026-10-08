@@ -1,5 +1,5 @@
 import { ShieldCheck } from "lucide-react";
-import { F, Fade, Stage, useEnter, Words } from "../kit";
+import { F, Fade, Stage, useEnter, useTall, Words } from "../kit";
 import { scene } from "../timeline";
 
 const { duration } = scene("privacy");
@@ -16,7 +16,7 @@ const Pill: React.FC<{ at: number; children: React.ReactNode }> = ({ at, childre
         borderRadius: 999,
         border: "1px solid rgb(255 255 255 / 0.25)",
         background: "rgb(255 255 255 / 0.08)",
-        fontSize: 34,
+        fontSize: 38,
         fontWeight: 700,
       }}
     >
@@ -27,6 +27,7 @@ const Pill: React.FC<{ at: number; children: React.ReactNode }> = ({ at, childre
 
 export const Privacy: React.FC = () => {
   const icon = useEnter(0, 30);
+  const tall = useTall();
   return (
     <Stage dark duration={duration}>
       <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
@@ -46,13 +47,13 @@ export const Privacy: React.FC = () => {
         >
           <ShieldCheck size={76} color="#fff" strokeWidth={1.8} />
         </div>
-        <Words text="Completely offline." start={26} style={{ marginTop: 56, fontSize: 120, fontWeight: 800, letterSpacing: -5 }} />
+        <Words text={tall ? "Completely\noffline." : "Completely offline."} start={26} style={{ marginTop: 56, fontSize: tall ? 140 : 120, fontWeight: 800, letterSpacing: -5, lineHeight: 1.02 }} />
         <div style={{ display: "flex", gap: 20, marginTop: 44 }}>
           <Pill at={80}>No account</Pill>
           <Pill at={106}>No ads</Pill>
         </div>
         <Fade start={128}>
-          <div style={{ marginTop: 44, fontSize: 44, fontWeight: 500, color: "#b9c4de" }}>Your data never leaves your phone.</div>
+          <div style={{ marginTop: 44, fontSize: tall ? 48 : 44, fontWeight: 500, color: "#b9c4de", padding: "0 80px" }}>Your data never leaves your phone.</div>
         </Fade>
       </div>
     </Stage>

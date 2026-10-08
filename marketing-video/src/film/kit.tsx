@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Easing, Img, interpolate, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Easing, Img, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { FONT } from "../theme";
 import { TIMELINE } from "./timeline";
 
@@ -13,6 +13,12 @@ export const F = {
   ink: "#0b0b0f",
   ink2: "#55555f",
   light: "#f4f5f9",
+};
+
+/** True for the vertical (9:16) cut. Scenes pick their layout from it; timing is shared. */
+export const useTall = () => {
+  const { width, height } = useVideoConfig();
+  return height > width;
 };
 
 /** 0 → 1 from `start` over `dur` frames. */
@@ -193,23 +199,104 @@ export const Fade: React.FC<{ start: number; dur?: number; y?: number; style?: R
   return <div style={{ opacity: p, translate: `0px ${(1 - p) * y}px`, filter: `blur(${(1 - p) * 8}px)`, ...style }}>{children}</div>;
 };
 
-export const Kicker: React.FC<{ start: number; children: React.ReactNode; dark?: boolean }> = ({ start, children, dark }) => (
-  <Fade start={start}>
-    <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 24, fontWeight: 700, letterSpacing: 5, textTransform: "uppercase", color: dark ? F.brandSoft : F.brand }}>
-      <div style={{ width: 36, height: 3, borderRadius: 2, background: "currentColor" }} />
-      {children}
-    </div>
-  </Fade>
-);
+export const Kicker: React.FC<{ start: number; children: React.ReactNode; dark?: boolean }> = ({ start, children, dark }) => {
+  const tall = useTall();
+  return (
+    <Fade start={start}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 14,
+          fontSize: tall ? 30 : 24,
+          fontWeight: 700,
+          letterSpacing: 5,
+          textTransform: "uppercase",
+          color: dark ? F.brandSoft : F.brand,
+        }}
+      >
+        <div style={{ width: 36, height: 3, borderRadius: 2, background: "currentColor" }} />
+        {children}
+      </div>
+    </Fade>
+  );
+};
 
 export const HEADLINE: React.CSSProperties = { fontSize: 92, fontWeight: 800, letterSpacing: -3.5, lineHeight: 1.02 };
 export const SUB: React.CSSProperties = { fontSize: 34, fontWeight: 500, lineHeight: 1.4, color: F.ink2 };
+
+/** Kicker, headline and supporting line: left column when wide, top block when tall. */
+export const TextBlock: React.FC<{ kicker: string; title: string; sub: string; wide: React.CSSProperties; subWidth?: number }> = ({
+  kicker,
+  title,
+  sub,
+  wide,
+  subWidth = 620,
+}) => {
+  const tall = useTall();
+  return (
+    <div style={{ position: "absolute", ...(tall ? { left: 90, right: 90, top: 210 } : wide) }}>
+      <Kicker start={4}>{kicker}</Kicker>
+      <Words text={title} start={8} style={{ ...HEADLINE, fontSize: tall ? 104 : 92, marginTop: 26 }} />
+      <Fade start={26}>
+        <div style={{ ...SUB, fontSize: tall ? 42 : 34, marginTop: tall ? 26 : 30, maxWidth: tall ? 880 : subWidth }}>{sub}</div>
+      </Fade>
+    </div>
+  );
+};
+
+/** A device that rises in at `at` and turns slowly. `turn` is its starting Y rotation in degrees. */
+export const FloatingDevice: React.FC<{
+  screen: Screen;
+  width: number;
+  left: number;
+  top: number;
+  at?: number;
+  turn?: number;
+  settle?: number;
+  lift?: number;
+  style?: React.CSSProperties;
+}> = ({ screen, width, left, top, at = 0, turn = -16, settle = 6, lift = 0, style }) => {
+  const frame = useCurrentFrame();
+  const p = useEnter(at, 40);
+  const spin = Math.sign(turn) * -1;
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left,
+        top,
+        opacity: p,
+        transform: `perspective(2400px) translateY(${(1 - p) * 140 - frame * lift}px) rotateY(${turn + spin * (p * settle + frame * 0.02)}deg) rotateX(3deg)`,
+        ...style,
+      }}
+    >
+      <Device screen={screen} width={width} />
+    </div>
+  );
+};
+
+/** A callout card that lifts in at `at`. */
+export const PopCard: React.FC<{ card: keyof typeof CARDS; at: number; width: number; left: number; top: number }> = ({ card, at, width, left, top }) => {
+  const p = useEnter(at, 26);
+  return (
+    <Callout
+      card={card}
+      width={width}
+      style={{ position: "absolute", left, top: top - p * 30, opacity: p, scale: String(0.92 + p * 0.08), filter: `blur(${(1 - p) * 8}px)` }}
+    />
+  );
+};
 
 // Stage ---------------------------------------------------------------------------------------
 /** Scene backdrop with a slow camera push-in and drifting light. */
 export const Stage: React.FC<{ dark?: boolean; duration: number; children: React.ReactNode }> = ({ dark, duration, children }) => {
   const frame = useCurrentFrame();
+  const { width, height } = useVideoConfig();
   const drift = interpolate(frame, [0, duration], [0, 1]);
+  // Light sources sit top-right and bottom-left in either orientation.
+  const sx = width / 1920;
+  const sy = height / 1080;
   return (
     <AbsoluteFill style={{ background: dark ? F.navy : F.light, fontFamily: FONT, color: dark ? "#fff" : F.ink, overflow: "hidden" }}>
       <div
@@ -217,8 +304,8 @@ export const Stage: React.FC<{ dark?: boolean; duration: number; children: React
           position: "absolute",
           width: 1400,
           height: 1400,
-          left: 900 - drift * 160,
-          top: -620 + drift * 60,
+          left: (900 - drift * 160) * sx,
+          top: (-620 + drift * 60) * sy,
           borderRadius: "50%",
           background: dark
             ? "radial-gradient(circle, rgb(20 99 255 / 0.38) 0%, rgb(20 99 255 / 0) 62%)"
@@ -230,8 +317,8 @@ export const Stage: React.FC<{ dark?: boolean; duration: number; children: React
           position: "absolute",
           width: 1200,
           height: 1200,
-          left: -500 + drift * 140,
-          top: 300 - drift * 40,
+          left: (-500 + drift * 140) * sx,
+          top: (300 - drift * 40) * sy,
           borderRadius: "50%",
           background: dark
             ? "radial-gradient(circle, rgb(90 77 211 / 0.25) 0%, rgb(90 77 211 / 0) 62%)"

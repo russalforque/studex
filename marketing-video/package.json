@@ -32,6 +32,7 @@
     "lint": "eslint src && tsc",
     "render": "remotion render StudexPromo out/studex-promo.mp4",
     "render:film": "remotion render StudexFilm out/studex-film.mp4",
-    "screens": "node scripts/capture-screens.mjs"
+    "screens": "node scripts/capture-screens.mjs",
+    "render:film-vertical": "remotion render StudexFilmVertical out/studex-film-vertical.mp4"
   }
 }

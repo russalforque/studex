@@ -7,12 +7,16 @@ font and logo.
 npm install
 npm run dev          # Remotion Studio preview; every scene is also its own composition
 npm run render       # out/studex-promo.mp4
-npm run render:film  # out/studex-film.mp4
+npm run render:film           # out/studex-film.mp4 (16:9)
+npm run render:film-vertical  # out/studex-film-vertical.mp4 (9:16)
 ```
 
-## StudexFilm: product film (16:9)
+## StudexFilm: product film (16:9 and 9:16)
 
-51 seconds, 1920×1080, for YouTube, the website and presentations. It shows **real Studex
+51 seconds, in two cuts: `StudexFilm` (1920×1080) for YouTube, the website and presentations, and
+`StudexFilmVertical` (1080×1920) for Reels, TikTok and Shorts. Both share the narration, music and
+animation timing; each scene picks its layout from `useTall()` (`src/film/kit.tsx`). In the vertical
+cut, key content stays above the bottom ~350px, where social apps overlay captions. It shows **real Studex
 screens** (captured from the app with sample data) in a device frame, with cards lifting out of the
 screen to highlight details. Code in `src/film/`.
 

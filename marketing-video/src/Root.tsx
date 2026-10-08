@@ -25,6 +25,8 @@ export const RemotionRoot: React.FC = () => (
     </Folder>
     {/* 16:9 product film with real app screens, for YouTube, the website and presentations. */}
     <Composition id="StudexFilm" component={StudexFilm} durationInFrames={FILM.total} width={1920} height={1080} fps={FILM.fps} />
+    {/* The same film re-laid-out for 9:16 (Reels, TikTok, Shorts). Scenes switch layout on orientation. */}
+    <Composition id="StudexFilmVertical" component={StudexFilm} durationInFrames={FILM.total} width={1080} height={1920} fps={FILM.fps} />
     <Folder name="Film-scenes">
       {FILM.scenes.map((s) => (
         <Composition

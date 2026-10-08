@@ -1,44 +1,32 @@
-import { useCurrentFrame } from "remotion";
-import { Callout, Device, Fade, HEADLINE, Kicker, Stage, SUB, useEnter, Words } from "../kit";
+import { FloatingDevice, PopCard, Stage, TextBlock, useTall } from "../kit";
 import { scene } from "../timeline";
 
 const { duration } = scene("exams");
 
 export const Exams: React.FC = () => {
-  const frame = useCurrentFrame();
-  const phone = useEnter(0, 40);
-  const quiz = useEnter(40, 26);
-  const grade = useEnter(122, 26);
+  const tall = useTall();
   return (
     <Stage duration={duration}>
-      <div style={{ position: "absolute", left: 150, top: 300, width: 720 }}>
-        <Kicker start={4}>Exams & grades</Kicker>
-        <Words text={"Study with\na plan."} start={8} style={{ ...HEADLINE, marginTop: 26 }} />
-        <Fade start={26}>
-          <div style={{ ...SUB, marginTop: 30, maxWidth: 640 }}>Countdowns, study topics, and a live grade estimate for every subject.</div>
-        </Fade>
-      </div>
-      <div
-        style={{
-          position: "absolute",
-          left: 1170,
-          top: 90,
-          opacity: phone,
-          transform: `perspective(2400px) translateY(${(1 - phone) * 140}px) rotateY(${-16 + phone * 6 + frame * 0.02}deg) rotateX(3deg)`,
-        }}
-      >
-        <Device screen="exams" width={420} />
-      </div>
-      <Callout
-        card="physicsQuiz"
-        width={430}
-        style={{ position: "absolute", left: 940, top: 230 - quiz * 30, opacity: quiz, scale: String(0.92 + quiz * 0.08), filter: `blur(${(1 - quiz) * 8}px)` }}
+      <TextBlock
+        kicker="Exams & grades"
+        title={"Study with\na plan."}
+        sub="Countdowns, study topics, and a live grade estimate for every subject."
+        wide={{ left: 150, top: 300, width: 720 }}
+        subWidth={640}
       />
-      <Callout
-        card="gradeEstimate"
-        width={460}
-        style={{ position: "absolute", left: 1400, top: 600 - grade * 30, opacity: grade, scale: String(0.92 + grade * 0.08), filter: `blur(${(1 - grade) * 8}px)` }}
-      />
+      {tall ? (
+        <>
+          <FloatingDevice screen="exams" width={470} left={305} top={830} turn={-8} settle={3} />
+          <PopCard card="physicsQuiz" at={40} width={480} left={60} top={900} />
+          <PopCard card="gradeEstimate" at={122} width={510} left={510} top={1300} />
+        </>
+      ) : (
+        <>
+          <FloatingDevice screen="exams" width={420} left={1170} top={90} />
+          <PopCard card="physicsQuiz" at={40} width={430} left={940} top={230} />
+          <PopCard card="gradeEstimate" at={122} width={460} left={1400} top={600} />
+        </>
+      )}
     </Stage>
   );
 };
