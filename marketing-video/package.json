@@ -21,6 +21,7 @@
     "@types/react": "19.2.7",
     "@types/web": "0.0.166",
     "eslint": "9.39.5",
+    "playwright": "^1.56.1",
     "prettier": "3.8.1",
     "typescript": "5.9.3"
   },
@@ -29,6 +30,8 @@
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc",
-    "render": "remotion render StudexPromo out/studex-promo.mp4"
+    "render": "remotion render StudexPromo out/studex-promo.mp4",
+    "render:film": "remotion render StudexFilm out/studex-film.mp4",
+    "screens": "node scripts/capture-screens.mjs"
   }
 }

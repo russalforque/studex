@@ -1,0 +1,124 @@
+{
+  "fps": 30,
+  "transition": 20,
+  "scenes": [
+    {
+      "id": "open",
+      "duration": 214,
+      "voice": [
+        {
+          "file": "voiceover/film/open-0.wav",
+          "text": "Between classes, deadlines, exams, and a weekly allowance, student life moves fast.",
+          "from": 20,
+          "frames": 158
+        }
+      ],
+      "start": 0
+    },
+    {
+      "id": "title",
+      "duration": 134,
+      "voice": [
+        {
+          "file": "voiceover/film/title-0.wav",
+          "text": "Studex brings it all together, in one calm app.",
+          "from": 14,
+          "frames": 84
+        }
+      ],
+      "start": 194
+    },
+    {
+      "id": "today",
+      "duration": 178,
+      "voice": [
+        {
+          "file": "voiceover/film/today-0.wav",
+          "text": "Open it, and your day is ready. Your next class, and exactly what's due.",
+          "from": 14,
+          "frames": 128
+        }
+      ],
+      "start": 308
+    },
+    {
+      "id": "plan",
+      "duration": 181,
+      "voice": [
+        {
+          "file": "voiceover/film/plan-0.wav",
+          "text": "Your timetable and your tasks live side by side, so nothing slips through.",
+          "from": 14,
+          "frames": 131
+        }
+      ],
+      "start": 466
+    },
+    {
+      "id": "exams",
+      "duration": 208,
+      "voice": [
+        {
+          "file": "voiceover/film/exams-0.wav",
+          "text": "Count down to every exam, track your study topics, and see if your grades are on target.",
+          "from": 14,
+          "frames": 158
+        }
+      ],
+      "start": 627
+    },
+    {
+      "id": "budget",
+      "duration": 200,
+      "voice": [
+        {
+          "file": "voiceover/film/budget-0.wav",
+          "text": "Studex works out how much is safe to spend today, so your allowance lasts the whole week.",
+          "from": 14,
+          "frames": 150
+        }
+      ],
+      "start": 815
+    },
+    {
+      "id": "savings",
+      "duration": 136,
+      "voice": [
+        {
+          "file": "voiceover/film/savings-0.wav",
+          "text": "And it helps you set money aside for the things that matter.",
+          "from": 14,
+          "frames": 86
+        }
+      ],
+      "start": 995
+    },
+    {
+      "id": "privacy",
+      "duration": 214,
+      "voice": [
+        {
+          "file": "voiceover/film/privacy-0.wav",
+          "text": "It works completely offline. No account. No ads. Your data never leaves your phone.",
+          "from": 14,
+          "frames": 164
+        }
+      ],
+      "start": 1111
+    },
+    {
+      "id": "cta",
+      "duration": 242,
+      "voice": [
+        {
+          "file": "voiceover/film/cta-0.wav",
+          "text": "Studex. Pay once, and keep it for life. Get it today, at studex dot P H.",
+          "from": 14,
+          "frames": 153
+        }
+      ],
+      "start": 1305
+    }
+  ],
+  "total": 1547
+}
