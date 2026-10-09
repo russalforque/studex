@@ -1,5 +1,7 @@
+import { Globe } from "lucide-react";
 import { Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { F, Fade, Stage, useTall, Words } from "../kit";
+import { DOWNLOAD_URL } from "../../links";
 import { scene } from "../timeline";
 
 const { duration } = scene("cta");
@@ -28,15 +30,37 @@ export const Cta: React.FC = () => {
         <Fade start={88}>
           <div style={{ display: "flex", flexDirection: tall ? "column" : "row", gap: tall ? 24 : 20, marginTop: 56, alignItems: "center" }}>
             <div style={{ padding: "26px 52px", borderRadius: 999, background: F.ink, color: "#fff", fontSize: tall ? 46 : 38, fontWeight: 800 }}>
-              Get it free at studex.ph
+              Get it free
             </div>
             <div style={{ padding: "24px 44px", borderRadius: 999, border: `2px solid ${F.ink}`, fontSize: tall ? 46 : 38, fontWeight: 800 }}>
               Upgrade anytime
             </div>
           </div>
         </Fade>
-        <Fade start={110}>
-          <div style={{ marginTop: 36, fontSize: tall ? 32 : 28, fontWeight: 600, color: F.ink2, letterSpacing: 0.5 }}>
+        <Fade start={142}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
+              marginTop: tall ? 40 : 36,
+              padding: tall ? "22px 36px" : "18px 34px",
+              borderRadius: 22,
+              background: "#fff",
+              border: `2px solid ${F.brand}`,
+              boxShadow: "0 24px 60px -24px rgb(20 99 255 / 0.45)",
+              color: F.brand,
+              fontSize: tall ? 44 : 40,
+              fontWeight: 800,
+              letterSpacing: -0.5,
+            }}
+          >
+            <Globe size={tall ? 44 : 40} strokeWidth={2.4} />
+            {DOWNLOAD_URL}
+          </div>
+        </Fade>
+        <Fade start={160}>
+          <div style={{ marginTop: 30, fontSize: tall ? 32 : 28, fontWeight: 600, color: F.ink2, letterSpacing: 0.5 }}>
             For Android · Works offline · No account needed
           </div>
         </Fade>

@@ -134,17 +134,17 @@
     },
     {
       "id": "cta",
-      "duration": 274,
+      "duration": 279,
       "voice": [
         {
           "file": "voiceover/film/cta-0.wav",
-          "text": "Studex is free to download. Start today, and upgrade whenever you're ready, at studex dot P H.",
+          "text": "Studex is free to download. Start today, upgrade whenever you're ready, and get it at the link on screen.",
           "from": 14,
-          "frames": 185
+          "frames": 190
         }
       ],
       "start": 1707
     }
   ],
-  "total": 1981
+  "total": 1986
 }

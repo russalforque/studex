@@ -32,7 +32,7 @@ screen to highlight details. Code in `src/film/`.
 | Budget | Studex works out how much is safe to spend today, so your allowance lasts the whole week. |
 | Savings | And it helps you set money aside for the things that matter. |
 | Privacy | It works completely offline. No account needed. And your data never leaves your phone. |
-| CTA | Studex is free to download. Start today, and upgrade whenever you're ready, at studex dot P H. |
+| CTA | Studex is free to download. Start today, upgrade whenever you're ready, and get it at the link on screen. |
 
 The scenes follow the order of the app's own tour (`src/features/guide/tourSteps.ts`): day at a
 glance, tasks and schedule, exams, subjects, files, budget, then savings and privacy.
@@ -68,7 +68,7 @@ Code in `src/scenes/`.
 | Money | Spend smart: safe to spend today, expenses, savings goal |
 | Files | Scan handouts: camera scan to PDF |
 | Privacy | Works offline, no account, data stays on your phone |
-| Outro | Free to download · Upgrade anytime · Get Studex free · studex.ph |
+| Outro | Free to download · Upgrade anytime · Get Studex free · download link |
 
 ## Voiceover and music
 
@@ -94,3 +94,9 @@ python -m venv .venv && .venv/bin/pip install kokoro-onnx soundfile numpy scipy
 
 Scene animations are timed in frames inside each scene; after a big script change, check that
 they still land on the words.
+
+## Download link
+
+Both endings show the download link from `src/links.ts` (`DOWNLOAD_URL`), currently the
+portfolio site `russ-dev-t86v.vercel.app`. The narration says "the link on screen", so changing
+the link needs no new voiceover: edit the constant and re-render.

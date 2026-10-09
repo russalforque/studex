@@ -42,7 +42,7 @@ VIDEOS = {
             "money": ["Know exactly how much is safe to spend today, so your allowance lasts the week. And watch your savings grow."],
             "files": ["Scan your handouts into clean PDFs, filed by subject."],
             "privacy": ["It works offline. No account. Your data stays on your phone."],
-            "outro": ["Studex. Free to download. Upgrade whenever you're ready, at studex dot P H."],
+            "outro": ["Studex. Free to download. Upgrade whenever you're ready. Get it at the link on screen."],
         },
     },
     # 16:9 product film with real app screens (src/film/).
@@ -67,7 +67,7 @@ VIDEOS = {
             "budget": ["Studex works out how much is safe to spend today, so your allowance lasts the whole week."],
             "savings": ["And it helps you set money aside for the things that matter."],
             "privacy": ["It works completely offline. No account needed. And your data never leaves your phone."],
-            "cta": ["Studex is free to download. Start today, and upgrade whenever you're ready, at studex dot P H."],
+            "cta": ["Studex is free to download. Start today, upgrade whenever you're ready, and get it at the link on screen."],
         },
     },
 }

@@ -1,4 +1,5 @@
 import { Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { DOWNLOAD_URL } from "../links";
 import { C } from "../theme";
 import { Rise, Scene } from "../ui";
 
@@ -70,9 +71,22 @@ export const Outro: React.FC = () => {
             Get Studex free
           </div>
         </Rise>
-        <Rise start={116}>
-          <div style={{ marginTop: 40, fontSize: 46, fontWeight: 700, color: C.ink2 }}>
-            studex.ph · Android
+        <Rise start={114}>
+          <div style={{ marginTop: 44, fontSize: 36, fontWeight: 600, color: C.ink2 }}>Get it at</div>
+          <div
+            style={{
+              marginTop: 12,
+              padding: "20px 36px",
+              borderRadius: 24,
+              background: "#fff",
+              border: `3px solid ${C.brand}`,
+              color: C.brand,
+              fontSize: 50,
+              fontWeight: 800,
+              letterSpacing: -0.5,
+            }}
+          >
+            {DOWNLOAD_URL}
           </div>
         </Rise>
       </div>
