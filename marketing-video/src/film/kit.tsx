@@ -29,7 +29,7 @@ export const useEnter = (start: number, dur = 24) => {
 
 // Screens -------------------------------------------------------------------------------------
 // Real app screenshots from scripts/capture-screens.mjs (393×852 CSS px at 3×).
-export type Screen = "home" | "schedule" | "tasks" | "exams" | "subject" | "grades" | "budget" | "savings" | "goal" | "week" | "focus" | "notes";
+export type Screen = "home" | "schedule" | "tasks" | "exams" | "subject" | "grades" | "budget" | "savings" | "goal" | "week" | "focus" | "notes" | "files";
 const SCREEN_W = 393;
 const SCREEN_H = 852;
 const STATUS_H = 50;
@@ -43,6 +43,9 @@ export const CARDS = {
   budgetLeft: { screen: "budget", rect: [16, 77, 377, 285], radius: 30 },
   safeToday: { screen: "budget", rect: [16, 297, 192, 385], radius: 24 },
   laptopGoal: { screen: "savings", rect: [16, 311, 377, 464], radius: 26 },
+  avgGrade: { screen: "grades", rect: [16, 120, 192, 205], radius: 24 },
+  attendance: { screen: "grades", rect: [202, 120, 377, 205], radius: 24 },
+  recentFiles: { screen: "files", rect: [10, 562, 383, 762], radius: 24 },
 } as const satisfies Record<string, { screen: Screen; rect: readonly [number, number, number, number]; radius: number }>;
 
 const shot = (s: Screen) => staticFile(`screens/${s}.png`);

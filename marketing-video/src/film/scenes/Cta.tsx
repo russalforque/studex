@@ -24,20 +24,20 @@ export const Cta: React.FC = () => {
           }}
         />
         <Words text="Studex" start={6} style={{ marginTop: 40, fontSize: tall ? 170 : 150, fontWeight: 800, letterSpacing: -6 }} />
-        <Words text="Pay once. Keep it for life." start={28} stagger={3} style={{ marginTop: 4, fontSize: tall ? 58 : 52, fontWeight: 600, color: F.ink2 }} />
-        <Fade start={72}>
+        <Words text="Free to download." start={22} stagger={3} style={{ marginTop: 4, fontSize: tall ? 58 : 52, fontWeight: 600, color: F.ink2 }} />
+        <Fade start={88}>
           <div style={{ display: "flex", flexDirection: tall ? "column" : "row", gap: tall ? 24 : 20, marginTop: 56, alignItems: "center" }}>
             <div style={{ padding: "26px 52px", borderRadius: 999, background: F.ink, color: "#fff", fontSize: tall ? 46 : 38, fontWeight: 800 }}>
-              Get it at studex.ph
+              Get it free at studex.ph
             </div>
             <div style={{ padding: "24px 44px", borderRadius: 999, border: `2px solid ${F.ink}`, fontSize: tall ? 46 : 38, fontWeight: 800 }}>
-              ₱199 one-time
+              Upgrade anytime
             </div>
           </div>
         </Fade>
-        <Fade start={92}>
+        <Fade start={110}>
           <div style={{ marginTop: 36, fontSize: tall ? 32 : 28, fontWeight: 600, color: F.ink2, letterSpacing: 0.5 }}>
-            For Android · No subscription · Works offline
+            For Android · Works offline · No account needed
           </div>
         </Fade>
       </div>

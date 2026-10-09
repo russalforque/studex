@@ -3,16 +3,16 @@ import { C } from "../theme";
 import { Rise, Scene } from "../ui";
 
 const CHIPS = [
-  { text: "One-time payment", bg: C.mint },
-  { text: "No subscription", bg: C.sky },
-  { text: "No ads", bg: C.pink },
+  { text: "Free to start", bg: C.mint },
+  { text: "Upgrade anytime", bg: C.sky },
+  { text: "Works offline", bg: C.pink },
 ];
 
 export const Outro: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const pop = spring({ frame, fps, config: { damping: 14 } });
-  const pulse = 1 + Math.max(0, Math.sin((frame - 110) / 6)) * 0.03 * (frame > 110 ? 1 : 0);
+  const pulse = 1 + Math.max(0, Math.sin((frame - 130) / 6)) * 0.03 * (frame > 130 ? 1 : 0);
   return (
     <Scene>
       <div
@@ -42,10 +42,10 @@ export const Outro: React.FC = () => {
         </Rise>
         <Rise start={30}>
           <div style={{ fontSize: 56, fontWeight: 600, color: C.ink2, lineHeight: 1.2 }}>
-            Pay once. Keep it for life.
+            Free to download.
           </div>
         </Rise>
-        <Rise start={52}>
+        <Rise start={70}>
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 18, marginTop: 50 }}>
             {CHIPS.map((c) => (
               <div key={c.text} style={{ padding: "14px 28px", borderRadius: 999, background: c.bg, fontSize: 34, fontWeight: 700 }}>
@@ -54,7 +54,7 @@ export const Outro: React.FC = () => {
             ))}
           </div>
         </Rise>
-        <Rise start={78}>
+        <Rise start={98}>
           <div
             style={{
               marginTop: 70,
@@ -67,10 +67,10 @@ export const Outro: React.FC = () => {
               scale: String(pulse),
             }}
           >
-            Get Studex · ₱199
+            Get Studex free
           </div>
         </Rise>
-        <Rise start={92}>
+        <Rise start={116}>
           <div style={{ marginTop: 40, fontSize: 46, fontWeight: 700, color: C.ink2 }}>
             studex.ph · Android
           </div>

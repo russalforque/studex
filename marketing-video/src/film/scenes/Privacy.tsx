@@ -49,10 +49,9 @@ export const Privacy: React.FC = () => {
         </div>
         <Words text={tall ? "Completely\noffline." : "Completely offline."} start={26} style={{ marginTop: 56, fontSize: tall ? 140 : 120, fontWeight: 800, letterSpacing: -5, lineHeight: 1.02 }} />
         <div style={{ display: "flex", gap: 20, marginTop: 44 }}>
-          <Pill at={80}>No account</Pill>
-          <Pill at={106}>No ads</Pill>
+          <Pill at={80}>No account needed</Pill>
         </div>
-        <Fade start={128}>
+        <Fade start={112}>
           <div style={{ marginTop: 44, fontSize: tall ? 48 : 44, fontWeight: 500, color: "#b9c4de", padding: "0 80px" }}>Your data never leaves your phone.</div>
         </Fade>
       </div>

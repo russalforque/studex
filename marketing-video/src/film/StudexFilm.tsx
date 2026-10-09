@@ -6,10 +6,12 @@ import { Finish } from "./kit";
 import { Budget } from "./scenes/Budget";
 import { Cta } from "./scenes/Cta";
 import { Exams } from "./scenes/Exams";
+import { Files } from "./scenes/Files";
 import { Open } from "./scenes/Open";
 import { Plan } from "./scenes/Plan";
 import { Privacy } from "./scenes/Privacy";
 import { Savings } from "./scenes/Savings";
+import { Subjects } from "./scenes/Subjects";
 import { Title } from "./scenes/Title";
 import { Today } from "./scenes/Today";
 import { type FilmSceneId, scene, TIMELINE, VOICE_SPANS } from "./timeline";
@@ -20,6 +22,8 @@ export const FILM_SCENES: Record<FilmSceneId, React.FC> = {
   today: Today,
   plan: Plan,
   exams: Exams,
+  subjects: Subjects,
+  files: Files,
   budget: Budget,
   savings: Savings,
   privacy: Privacy,

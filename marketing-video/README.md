@@ -13,7 +13,7 @@ npm run render:film-vertical  # out/studex-film-vertical.mp4 (9:16)
 
 ## StudexFilm: product film (16:9 and 9:16)
 
-51 seconds, in two cuts: `StudexFilm` (1920×1080) for YouTube, the website and presentations, and
+66 seconds, in two cuts: `StudexFilm` (1920×1080) for YouTube, the website and presentations, and
 `StudexFilmVertical` (1080×1920) for Reels, TikTok and Shorts. Both share the narration, music and
 animation timing; each scene picks its layout from `useTall()` (`src/film/kit.tsx`). In the vertical
 cut, key content stays above the bottom ~350px, where social apps overlay captions. It shows **real Studex
@@ -25,12 +25,17 @@ screen to highlight details. Code in `src/film/`.
 | Open | Between classes, deadlines, exams, and a weekly allowance, student life moves fast. |
 | Title | Studex brings it all together, in one calm app. |
 | Today | Open it, and your day is ready. Your next class, and exactly what's due. |
-| Plan | Your timetable and your tasks live side by side, so nothing slips through. |
-| Exams | Count down to every exam, track your study topics, and see if your grades are on target. |
+| Plan | Your timetable and your tasks live side by side, with reminders before every class. |
+| Exams | Count down to every exam, and tick off study topics as you prepare. |
+| Subjects | Each subject keeps its grades, attendance, notes, and files together, so you always know where you stand. |
+| Files | Scan handouts and notes into clean PDFs that open anytime, even without internet. |
 | Budget | Studex works out how much is safe to spend today, so your allowance lasts the whole week. |
 | Savings | And it helps you set money aside for the things that matter. |
-| Privacy | It works completely offline. No account. No ads. Your data never leaves your phone. |
-| CTA | Studex. Pay once, and keep it for life. Get it today, at studex dot P H. |
+| Privacy | It works completely offline. No account needed. And your data never leaves your phone. |
+| CTA | Studex is free to download. Start today, and upgrade whenever you're ready, at studex dot P H. |
+
+The scenes follow the order of the app's own tour (`src/features/guide/tourSteps.ts`): day at a
+glance, tasks and schedule, exams, subjects, files, budget, then savings and privacy.
 
 ### App screens
 
@@ -45,7 +50,8 @@ npm run screens
 
 `scripts/capture-screens.mjs` freezes the clock at Thursday 8 Oct 2026, 8:50 in Manila, seeds a
 semester through the app's own repositories (subjects, classes, tasks, exams, grades, allowance,
-expenses, savings) and saves 393×852 screenshots at 3×. The cards that lift out of the phone are
+expenses, savings, and study files imported through the app's own scan/import pipeline) and saves
+393×852 screenshots at 3×, plus one handout page (`handout.jpg`) for the scanning shot. The cards that lift out of the phone are
 cut from these by the rectangles in `CARDS` (`src/film/kit.tsx`); check them if a layout changes.
 
 ## StudexPromo: social cut (9:16)
@@ -62,7 +68,7 @@ Code in `src/scenes/`.
 | Money | Spend smart: safe to spend today, expenses, savings goal |
 | Files | Scan handouts: camera scan to PDF |
 | Privacy | Works offline, no account, data stays on your phone |
-| Outro | Pay once, keep it for life · Get Studex ₱199 · studex.ph |
+| Outro | Free to download · Upgrade anytime · Get Studex free · studex.ph |
 
 ## Voiceover and music
 

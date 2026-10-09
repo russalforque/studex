@@ -125,17 +125,17 @@
     },
     {
       "id": "outro",
-      "duration": 188,
+      "duration": 204,
       "voice": [
         {
           "file": "voiceover/outro-0.wav",
-          "text": "Studex. Pay once, keep it for life. Get it now at studex dot P H.",
+          "text": "Studex. Free to download. Upgrade whenever you're ready, at studex dot P H.",
           "from": 8,
-          "frames": 135
+          "frames": 151
         }
       ],
       "start": 1062
     }
   ],
-  "total": 1250
+  "total": 1266
 }

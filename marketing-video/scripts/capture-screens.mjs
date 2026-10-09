@@ -7,7 +7,7 @@
 // Freezes the clock at Thursday 8 Oct 2026, 8:50 in Manila, seeds a semester through the app's
 // own repositories (the same SQLite code the phone runs), and saves iPhone-sized screenshots
 // (393×852 at 3×) to public/screens/.
-import { mkdirSync } from 'node:fs'
+import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
@@ -45,7 +45,7 @@ const ids = await page.evaluate(async () => {
   await r.settings.updateProfile({ studentName: 'Juan Dela Cruz', schoolName: null, course: 'BS Chemistry', yearLevel: '2nd year' })
 
   const subject = (name, code, color, room, instructor, targetGrade = null) =>
-    r.subjects.create(semesterId, { name, code, color, room, instructor, notes: null, targetGrade, attendanceRequired: 80 })
+    r.subjects.create(semesterId, { name, code, color, room, instructor, notes: null, targetGrade, attendanceRequired: null })
   const calc = await subject('Calculus II', 'MATH 22', '#2869a8', 'Room 304', 'Prof. Reyes', 90)
   const phys = await subject('Physics 1', 'PHYS 71', '#c0337a', 'Lab 2', 'Dr. Santos', 88)
   const chem = await subject('Organic Chemistry', 'CHEM 40', '#1d8a55', 'Lab 5', 'Dr. Garcia', 90)
@@ -114,13 +114,78 @@ const ids = await page.evaluate(async () => {
   await r.notes.create(crypto.randomUUID(), { title: 'Titration steps', body: 'Rinse burette with titrant. Record initial volume. Add dropwise near the endpoint…', subjectId: chem, pinned: true })
   await r.notes.create(crypto.randomUUID(), { title: 'Integration by parts', body: '∫u dv = uv − ∫v du. Pick u with LIATE.', subjectId: calc, pinned: false })
 
+  // Study files, imported through the app's own pipeline (thumbnails included). Pages are drawn
+  // on a canvas to look like photographed handouts; multi-page ones become PDFs like the scanner's.
+  const { prepare, saveCandidate } = await import('/src/services/studyFiles.ts')
+  const { buildPdf } = await import('/src/domain/files.ts')
+  const page = async (title, sub, accent, n) => {
+    const c = document.createElement('canvas')
+    c.width = 1240
+    c.height = 1754
+    const g = c.getContext('2d')
+    g.fillStyle = '#fbfaf6'
+    g.fillRect(0, 0, c.width, c.height)
+    g.fillStyle = accent
+    g.fillRect(90, 90, 14, 120)
+    g.fillStyle = '#16161a'
+    g.font = 'bold 64px sans-serif'
+    g.fillText(title, 130, 160)
+    g.fillStyle = '#6a6a72'
+    g.font = '36px sans-serif'
+    g.fillText(`${sub} · page ${n}`, 130, 212)
+    g.fillStyle = '#c9c7bf'
+    let y = 320
+    for (let i = 0; i < 26; i++) {
+      if (i === 9) {
+        // A figure block
+        g.strokeStyle = accent
+        g.lineWidth = 6
+        g.strokeRect(130, y, 980, 300)
+        g.beginPath()
+        g.moveTo(160, y + 260)
+        for (let x = 0; x <= 920; x += 20) g.lineTo(160 + x, y + 260 - Math.sin((x + n * 90) / 140) * 90 - x * 0.12)
+        g.stroke()
+        y += 360
+      }
+      const w = 980 * (0.55 + ((i * 37 + n * 13) % 45) / 100)
+      g.fillRect(130, y, Math.min(980, w), 18)
+      y += 46
+    }
+    const blob = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.85))
+    return { blob, width: c.width, height: c.height }
+  }
+  let handout = null
+  const importFile = async (name, subjectId, source, pages) => {
+    const rendered = await Promise.all(pages.map((p, i) => page(p[0], p[1], p[2], i + 1)))
+    const blob =
+      rendered.length > 1 || source === 'scan'
+        ? new Blob([buildPdf(await Promise.all(rendered.map(async (r) => ({ jpeg: new Uint8Array(await r.blob.arrayBuffer()), width: r.width, height: r.height }))))], { type: 'application/pdf' })
+        : rendered[0].blob
+    const file = blob.type === 'application/pdf' ? `${name}.pdf` : `${name}.jpg`
+    if (!handout) handout = rendered[0]
+    const [candidate] = await prepare(r, [{ blob, name: file, source }])
+    await saveCandidate(r, candidate, { name, subjectId, description: null, attachTo: [] })
+  }
+  const chemPage = ['Titration: acid–base', 'CHEM 40 · Lab 6', '#1d8a55']
+  await importFile('Titration lab handout', chem, 'scan', [chemPage, chemPage, chemPage])
+  await importFile('Integration formulas', calc, 'camera', [['Integration by parts', 'MATH 22 · Notes', '#2869a8']])
+  await importFile('Physics quiz reviewer', phys, 'scan', [['Kinematics review', 'PHYS 71 · Ch. 1–3', '#c0337a'], ['Kinematics review', 'PHYS 71 · Ch. 1–3', '#c0337a']])
+  await importFile('Rizal reading packet', hist, 'scan', [['Noli Me Tangere notes', 'HIST 10 · Week 7', '#c05a16']])
+  await importFile('Essay rubric', comm, 'camera', [['Argumentative essay rubric', 'COMM 10', '#5a4dd3']])
+
   for (const id of ['tip.allowance', 'tip.expense', 'tip.subject', 'tip.file', 'tip.goal']) await r.guides.save(id, 1, 'seen')
   await r.guides.save('tour', 1, 'skipped')
-  return { calc, laptop }
+  const handoutUrl = await new Promise((done) => {
+    const reader = new FileReader()
+    reader.onload = () => done(reader.result)
+    reader.readAsDataURL(handout.blob)
+  })
+  return { calc, laptop, handoutUrl }
 })
 // The web build saves to IndexedDB 250 ms after the last write.
 await page.waitForTimeout(2000)
-console.log('seeded', ids)
+writeFileSync(join(OUT, 'handout.jpg'), Buffer.from(ids.handoutUrl.split(',')[1], 'base64'))
+console.log('seeded', { calc: ids.calc, laptop: ids.laptop })
 
 const shots = [
   ['home', '/'],
@@ -135,6 +200,7 @@ const shots = [
   ['week', '/week'],
   ['focus', '/focus'],
   ['notes', '/notes'],
+  ['files', '/files'],
 ]
 for (const [name, path] of shots) {
   await page.goto(`${BASE}/#${path}`)

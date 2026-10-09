@@ -43,29 +43,55 @@
     },
     {
       "id": "plan",
-      "duration": 181,
+      "duration": 215,
       "voice": [
         {
           "file": "voiceover/film/plan-0.wav",
-          "text": "Your timetable and your tasks live side by side, so nothing slips through.",
+          "text": "Your timetable and your tasks live side by side, with reminders before every class.",
           "from": 14,
-          "frames": 131
+          "frames": 165
         }
       ],
       "start": 466
     },
     {
       "id": "exams",
-      "duration": 208,
+      "duration": 173,
       "voice": [
         {
           "file": "voiceover/film/exams-0.wav",
-          "text": "Count down to every exam, track your study topics, and see if your grades are on target.",
+          "text": "Count down to every exam, and tick off study topics as you prepare.",
           "from": 14,
-          "frames": 158
+          "frames": 123
         }
       ],
-      "start": 627
+      "start": 661
+    },
+    {
+      "id": "subjects",
+      "duration": 237,
+      "voice": [
+        {
+          "file": "voiceover/film/subjects-0.wav",
+          "text": "Each subject keeps its grades, attendance, notes, and files together, so you always know where you stand.",
+          "from": 14,
+          "frames": 187
+        }
+      ],
+      "start": 814
+    },
+    {
+      "id": "files",
+      "duration": 213,
+      "voice": [
+        {
+          "file": "voiceover/film/files-0.wav",
+          "text": "Scan handouts and notes into clean PDFs that open anytime, even without internet.",
+          "from": 14,
+          "frames": 163
+        }
+      ],
+      "start": 1031
     },
     {
       "id": "budget",
@@ -78,7 +104,7 @@
           "frames": 150
         }
       ],
-      "start": 815
+      "start": 1224
     },
     {
       "id": "savings",
@@ -91,34 +117,34 @@
           "frames": 86
         }
       ],
-      "start": 995
+      "start": 1404
     },
     {
       "id": "privacy",
-      "duration": 214,
+      "duration": 207,
       "voice": [
         {
           "file": "voiceover/film/privacy-0.wav",
-          "text": "It works completely offline. No account. No ads. Your data never leaves your phone.",
+          "text": "It works completely offline. No account needed. And your data never leaves your phone.",
           "from": 14,
-          "frames": 164
+          "frames": 157
         }
       ],
-      "start": 1111
+      "start": 1520
     },
     {
       "id": "cta",
-      "duration": 242,
+      "duration": 274,
       "voice": [
         {
           "file": "voiceover/film/cta-0.wav",
-          "text": "Studex. Pay once, and keep it for life. Get it today, at studex dot P H.",
+          "text": "Studex is free to download. Start today, and upgrade whenever you're ready, at studex dot P H.",
           "from": 14,
-          "frames": 153
+          "frames": 185
         }
       ],
-      "start": 1305
+      "start": 1707
     }
   ],
-  "total": 1547
+  "total": 1981
 }
